@@ -2,6 +2,9 @@
 
 What changed in the sketchpad, newest first. The history before this repo existed is in the pet-shopper changelog (the sketchpad lines under Build 235 and later).
 
+## Windows program
+- An installer (Releases) that puts the sketchpad on your computer as its own program, with automatic updates.
+
 ## Works on its own
 - The game files it needs are copied into `game/`, with a script to refresh them (`node tools/sync-from-game.js`).
 

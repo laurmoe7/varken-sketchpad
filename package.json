@@ -1,0 +1,44 @@
+{
+  "name": "varken-sketchpad",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Draw game art for Fumufumu: skins, hats, toys, backgrounds and furniture.",
+  "author": "Lauren",
+  "main": "desktop/main.js",
+  "scripts": {
+    "start": "electron .",
+    "dist": "electron-builder --win --publish never"
+  },
+  "dependencies": {
+    "electron-updater": "^6.3.0"
+  },
+  "devDependencies": {
+    "electron": "^44.7.0",
+    "electron-builder": "^26.0.0"
+  },
+  "build": {
+    "appId": "com.laurmoe.varkensketchpad",
+    "productName": "Varken Sketchpad",
+    "files": [
+      "desktop/main.js",
+      "index.html",
+      "sketch.js",
+      "sketch.css",
+      "sketch-icon.svg",
+      "sketch-icon-180.png",
+      "game/**",
+      "build/icon.png",
+      "package.json"
+    ],
+    "directories": { "output": "dist", "buildResources": "build" },
+    "win": { "target": "nsis", "icon": "build/icon.png" },
+    "nsis": {
+      "oneClick": true,
+      "perMachine": false,
+      "runAfterFinish": true,
+      "deleteAppDataOnUninstall": false,
+      "artifactName": "Varken-Sketchpad-Setup-${version}.${ext}"
+    },
+    "publish": [{ "provider": "github", "owner": "laurmoe7", "repo": "varken-sketchpad", "releaseType": "release" }]
+  }
+}
