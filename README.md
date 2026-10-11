@@ -26,3 +26,5 @@ No build step. To run it locally: `python3 -m http.server`, then open http://loc
 ## Publishing
 
 GitHub Pages serves the `main` branch (Settings > Pages > Deploy from a branch > `main`, `/ (root)`).
+
+(Live page: https://laurmoe7.github.io/varken-sketchpad/.)
