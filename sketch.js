@@ -20,7 +20,7 @@ var SLOTS = [['hat', 'Hat'], ['body', 'Clothes'], ['face', 'Glasses'], ['mouth',
 /** What the pet underneath looks like (kept on this computer). */
 var P = { seated: false, species: 'mochi', skin: '', outfit: { hat: 'none', body: 'none', face: 'none', mouth: 'none', neck: 'none', feet: 'none' }, backdrop: 'meadow', night: false, room: {} };
 var SK = {
-  mode: 'pet', tool: 'pen', color: SK_COLOURS[0], zoom: 1, pen: 9, tab: 'draw', clean: true, style: 'solid', shape: 'heart', bodyClip: false, radial: 0, pressure: true, lazy: false, lazyN: 30, fillMode: 'none', colour2: '#ffc9d6', clip: [], pasteN: 0, tidy: 6, space: false, sel: null, mirror: false, pick: [],
+  mode: 'pet', tool: 'pen', color: SK_COLOURS[0], zoom: 1, pen: 9, tab: 'draw', clean: true, style: 'solid', brush: 'plain', shape: 'heart', bodyClip: false, radial: 0, pressure: true, lazy: false, lazyN: 30, fillMode: 'none', colour2: '#ffc9d6', clip: [], pasteN: 0, tidy: 6, space: false, sel: null, mirror: false, pick: [],
   strokes: { pet: [], scene: [], toy: [], room: [], canvas: [] }, hist: { pet: [], scene: [], toy: [], room: [], canvas: [] }, redo: { pet: [], scene: [], toy: [], room: [], canvas: [] },
   /** Pictures to trace, one layer each, in the same coordinates as the drawing: {id, name, src, cx, cy, bw, bh, scale, opacity, visible, behind} */
   images: { pet: [], scene: [], toy: [], room: [], canvas: [] },
@@ -82,7 +82,7 @@ function dressUp(el, outfit) {
 // ---------- keeping the work on this computer ----------
 function skSave() {
   try {
-    localStorage.setItem('nibble-sketchpad', JSON.stringify({ P: P, strokes: SK.strokes, kind: $('skKind').value, note: $('skNote').value, tidy: SK.tidy, pen: SK.pen, style: SK.style, tab: SK.tab, clean: SK.clean, shape: SK.shape, fillMode: SK.fillMode, colour2: SK.colour2, layers: SK.layers, active: SK.active, snap: $('skSnap').checked, mirror: SK.mirror, bodyClip: SK.bodyClip, radial: SK.radial, pressure: SK.pressure, lazy: SK.lazy, lazyN: SK.lazyN, canvas: SK_VIEW.canvas }));
+    localStorage.setItem('nibble-sketchpad', JSON.stringify({ P: P, strokes: SK.strokes, kind: $('skKind').value, note: $('skNote').value, tidy: SK.tidy, pen: SK.pen, style: SK.style, brush: SK.brush, tab: SK.tab, clean: SK.clean, shape: SK.shape, fillMode: SK.fillMode, colour2: SK.colour2, layers: SK.layers, active: SK.active, snap: $('skSnap').checked, mirror: SK.mirror, bodyClip: SK.bodyClip, radial: SK.radial, pressure: SK.pressure, lazy: SK.lazy, lazyN: SK.lazyN, canvas: SK_VIEW.canvas }));
   } catch (e) { /* storage not available */ }
 }
 function skLoad() {
@@ -103,6 +103,7 @@ function skLoad() {
     if (d.pen >= 1 && d.pen <= 40) SK.pen = d.pen;
     if (L.SKETCH_STYLES[d.style] !== undefined || d.style === 'wavy' || d.style === 'soft') SK.style = d.style;
     if (L.SKETCH_SHAPES.some(function (x) { return x[0] === d.shape; })) SK.shape = d.shape;
+    if (SK_BRUSHES.some(function (x) { return x[0] === d.brush; })) SK.brush = d.brush;
     SK.fillMode = ['none', 'flat', 'v', 'h', 'r'].concat(L.SKETCH_PATTERNS).indexOf(d.fillMode) !== -1 ? d.fillMode : (d.shapeFill ? 'flat' : 'none');
     if (/^#[0-9a-f]{6}$/i.test(d.colour2 || '')) SK.colour2 = d.colour2;
     if (d.clean === false) SK.clean = false;
@@ -187,6 +188,7 @@ function skSymExtra(s) {
 function skNew(s) { if (SK.bodyClip && SK.mode === 'pet') s.clip = true; return s; }
 /** @returns {Object} A pen-pressure line as the filled outline it is saved as (other lines come back as they are). */
 function skLiveStroke(s) {
+  if (s.brush) return skBrushStroke(s);
   if (!s.pr) return s;
   var v = SK_VIEW[SK.mode];
   return { pts: L.sketchRibbon(s.pts, s.pr.map(function (f) { return s.width * f; })), color: s.color, width: +(v.w * 0.0015).toFixed(2), fill: true, closed: true, lay: s.lay, style: 'solid', clip: s.clip };
@@ -197,6 +199,8 @@ function skLiveUpdate() {
   function path(t) { return t.d || L.sketchPath(t.pts, (t.fill || t.closed) && t.pts.length > 2, dp); }
   d.el.setAttribute('d', path(ls));
   if (d.stroke.pr) { d.el.setAttribute('fill', ls.color); d.el.setAttribute('stroke-width', ls.width); }
+  if (ls.d) d.el.setAttribute('fill-rule', 'evenodd');
+  if (ls.style === 'soft' && !d.el.getAttribute('filter')) { var sd = L.sketchSoftBlur(ls.width); d.el.setAttribute('filter', 'url(#' + skDef(L.sketchBlurId(sd), L.sketchBlurDef(sd)) + ')'); d.el.setAttribute('opacity', '.7'); }
   while (d.extra.length < ex.length) { var el = skEl(ex[d.extra.length]); skDraw.appendChild(el); d.extra.push(el); }
   d.extra.forEach(function (el, i) { el.setAttribute('d', path(ex[i])); });
 }
@@ -400,7 +404,7 @@ function skStepName(a, b) {
   Object.keys(seen).forEach(function (k) { removed += seen[k]; });
   var n = added.length, lines = function (c) { return c + (c === 1 ? ' line' : ' lines'); };
   if (!n && !removed) name = 'Layers changed';
-  else if (!removed) name = added.some(function (s) { return s.bucket; }) ? 'Filled an area' : added.every(function (s) { return s.d && s.fill; }) ? (n === 1 ? 'Added a shape' : 'Added ' + n + ' shapes') : (n === 1 ? 'Drew a line' : 'Added ' + lines(n));
+  else if (!removed) name = added.some(function (s) { return s.bucket; }) ? 'Filled an area' : added.every(function (s) { return s.d && s.fill && !s.brush; }) ? (n === 1 ? 'Added a shape' : 'Added ' + n + ' shapes') : (n === 1 ? 'Drew a line' : 'Added ' + lines(n));
   else if (!n) name = 'Removed ' + lines(removed);
   else if (n === removed) name = 'Changed ' + lines(n);
   else name = n > removed ? 'Edited, ' + (n - removed) + ' more' : 'Edited, ' + (removed - n) + ' fewer';
@@ -681,6 +685,7 @@ function skDown(e) {
   var s = skNew({ pts: [pt], color: SK.color, width: +(v.w * SK_PEN * SK.pen).toFixed(2), fill: SK.tool === 'blob', lay: SK.active[SK.mode], style: SK.style });
   if (s.fill && skGrad()) s.grad = skGrad();
   if (SK.tool === 'pen' && SK.pressure && e.pointerType === 'pen' && SK.style === 'solid') s.pr = [skPressure(e)];   // a pen that feels pressure draws a line that swells and thins
+  if (SK.tool === 'pen' && SK.brush !== 'plain') { s.brush = SK.brush; s.style = 'solid'; s.pr = [skPressure(e)]; }   // a brush always reads the pressure (a mouse presses evenly)
   skDrawing = { stroke: s, el: skEl(s), extra: [], brush: SK.lazy && (SK.tool === 'pen' || SK.tool === 'blob') ? pt.slice() : null };
   skDraw.appendChild(skDrawing.el);
   skLiveUpdate();
@@ -693,6 +698,7 @@ function skMirrorCv(cv) {
 function skMirrored(s) {
   var m = JSON.parse(JSON.stringify(s));
   m.pts = s.pts.map(skMirrorPt);
+  if (s.d) m.d = s.d.replace(/(-?\d+(?:\.\d+)?) (-?\d+(?:\.\d+)?)/g, function (q, x, y) { var p = skMirrorPt([+x, +y]); return (Math.round(p[0] * 100) / 100) + ' ' + p[1]; });   // a scatter brush line
   if (m.cv) m.cv = skMirrorCv(m.cv);
   if (m.grad && m.grad.type === 'h') m.grad = { type: 'h', c1: m.grad.c2, c2: m.grad.c1 };   // the fade runs the other way round on the other side
   return m;
@@ -754,7 +760,7 @@ function skUp() {
   if (!skDrawing) return;
   if (skDrawing.stroke) {
     var s = skDrawing.stroke;
-    if (s.pr) s = skLiveStroke(s);   // a pressure line is saved as its filled outline, so it is not tidied
+    if (s.pr || s.brush) s = skLiveStroke(s);   // a pressure line or a brush line is saved as its filled shape, so it is not tidied
     else {
       var t = L.tidyStroke(s.pts, SK_VIEW[SK.mode].w, { passes: SK.tidy, snap: $('skSnap').checked });
       s.pts = t.pts;
@@ -836,6 +842,203 @@ function skRedo() {
 function skWavy(pts, width) {
   var v = SK_VIEW[SK.mode];
   return L.sketchWave(pts, Math.max(width * 1.2, v.w * 0.005), Math.max(width * 6, v.w * 0.028));
+}
+// ---------- brushes ----------
+// Pen brushes after the popular Clip Studio Paint ones. A brush turns the line you draw (its points and pen pressure) into one
+// ordinary filled shape when you lift the pen: a ribbon polygon in `pts`, or for the scatter brushes many small loops in `d`
+// (drawn evenodd, like a bucket fill). So the saved SVG and the game need nothing new. Each is a plain line to Select, Lasso,
+// Move and the eraser (which rubs it out whole, like a fill).
+/** The brushes: id, name in the list, what the status bar says. */
+var SK_BRUSHES = [
+  ['plain', 'Plain pen', 'Plain pen: an even line. The Line list and Tidy work on it.'],
+  ['gpen', 'G-pen', 'G-pen: an ink nib that swells when you press and comes to a point at both ends.'],
+  ['map', 'Mapping pen', 'Mapping pen: a fine nib for delicate lines, with a little swell.'],
+  ['sumi', 'Brush pen', 'Brush pen: fat where you press or go slowly, thin and pointed where you flick.'],
+  ['callig', 'Calligraphy', 'Calligraphy: a flat nib held at a slant, so the line is thick one way and thin the other.'],
+  ['marker', 'Marker', 'Marker: an even, bold line with flat ends.'],
+  ['pencil', 'Pencil', 'Pencil: a thin line with a grainy edge.'],
+  ['rough', 'Rough pen', 'Rough pen: an ink line with ragged edges.'],
+  ['bristle', 'Bristle brush', 'Bristle brush: a flat paintbrush whose ends fray into bristles.'],
+  ['water', 'Watercolour', 'Watercolour: a wide, soft, see-through wash.'],
+  ['spray', 'Spray', 'Spray: a mist of small dots along your line.'],
+  ['sparkle', '✦ Sparkles', 'Sparkles: little sparkles scattered along your line.'],
+  ['hearts', '♥ Hearts', 'Hearts: a trail of hearts.'],
+  ['bubbles', '○ Bubbles', 'Bubbles: rings of different sizes.']
+];
+/** @returns {function(): number} Random numbers between 0 and 1 that are always the same for the same seed (so a line looks the same while you draw it and after). */
+function skRng(seed) {
+  var t = (seed >>> 0) || 1;
+  return function () { t += 0x6D2B79F5; var r = Math.imul(t ^ (t >>> 15), 1 | t); r ^= r + Math.imul(r ^ (r >>> 7), 61 | r); return ((r ^ (r >>> 14)) >>> 0) / 4294967296; };
+}
+/** @returns {number} A seed from where a line starts. */
+function skBrushSeed(s) { var p = s.pts[0]; return (Math.floor(p[0] * 1000 + p[1] * 7919) ^ (s.brush.length * 2654435761)) >>> 0; }
+/** @returns {number[]} The numbers run through a small moving average (k on each side), same count. */
+function skSmoothArr(a, k) {
+  return a.map(function (_, i) { var sum = 0, c = 0; for (var q = -k; q <= k; q++) if (a[i + q] !== undefined) { sum += a[i + q]; c++; } return sum / c; });
+}
+/** @returns {number[][]} The points run through a small moving average; the ends stay where they are. */
+function skSmoothPts(pts, k) {
+  var n = pts.length;
+  if (n < 3) return pts.slice();
+  return pts.map(function (p, i) {
+    if (i === 0 || i === n - 1) return p.slice();
+    var x = 0, y = 0, c = 0;
+    for (var q = -k; q <= k; q++) if (pts[i + q]) { x += pts[i + q][0]; y += pts[i + q][1]; c++; }
+    return [x / c, y / c];
+  });
+}
+/** @returns {number[]} How far along the line each point is. */
+function skArcLen(pts) {
+  var out = [0], i;
+  for (i = 1; i < pts.length; i++) out.push(out[i - 1] + Math.hypot(pts[i][0] - pts[i - 1][0], pts[i][1] - pts[i - 1][1]));
+  return out;
+}
+/** @returns {number[]} The widths eased down to a point over `a` units at the start and `b` at the end. */
+function skTaper(len, widths, a, b) {
+  var total = len[len.length - 1];
+  return widths.map(function (w, i) {
+    var f = Math.min(1, a > 0 ? Math.pow(Math.min(1, len[i] / a), 0.7) : 1, b > 0 ? Math.pow(Math.min(1, (total - len[i]) / b), 0.7) : 1);
+    return w * Math.max(0.04, f);
+  });
+}
+/**
+ * @returns {number[][]} A line as a filled ribbon: as wide at each point as `widths` says.
+ * @param {{cap: string, jitter: number, nick: number, rng: function}} o  cap: round, flat or fray; jitter roughens the edges (in widths); nick: how often a bigger bite is taken.
+ */
+function skBrushPoly(pts, widths, o) {
+  var n = pts.length, i, m, Lp = [], Rp = [], dirs = [], rnd = o.rng || function () { return 0.5; }, jit = o.jitter || 0;
+  var r2 = function (p) { return [Math.round(p[0] * 100) / 100, Math.round(p[1] * 100) / 100]; };
+  if (!n) return [];
+  if (n === 1) { var dot = []; for (m = 0; m < 14; m++) dot.push([pts[0][0] + Math.cos(m * Math.PI / 7) * widths[0] / 2, pts[0][1] + Math.sin(m * Math.PI / 7) * widths[0] / 2]); return dot.map(r2); }
+  var bite = function (w) { var j = (rnd() - 0.5) * 2 * jit * w; if (o.nick && rnd() < o.nick) j -= rnd() * w * 0.35; return j; };
+  for (i = 0; i < n; i++) {
+    var a0 = pts[Math.max(0, i - 1)], b0 = pts[Math.min(n - 1, i + 1)], dx = b0[0] - a0[0], dy = b0[1] - a0[1], d = Math.hypot(dx, dy) || 1, w = widths[i];
+    dirs.push([dx / d, dy / d]);
+    var hl = Math.max(0.01, w / 2 + (jit ? bite(w) : 0)), hr = Math.max(0.01, w / 2 + (jit ? bite(w) : 0));
+    Lp.push([pts[i][0] - dy / d * hl, pts[i][1] + dx / d * hl]);
+    Rp.push([pts[i][0] + dy / d * hr, pts[i][1] - dx / d * hr]);
+  }
+  // the ends: from the left side round (or across, or in bristles) to the right side
+  var cap = function (c, dir, r, w) {
+    var out = [], base = Math.atan2(dir[1], dir[0]), k;
+    if (o.cap === 'flat') return out;
+    if (o.cap === 'fray') {
+      var teeth = 3 + Math.floor(rnd() * 3), Lc = [c[0] - dir[1] * r, c[1] + dir[0] * r], Rc = [c[0] + dir[1] * r, c[1] - dir[0] * r];
+      for (k = 1; k < teeth * 2; k++) {
+        var t = k / (teeth * 2), reach = k % 2 ? w * (0.3 + 0.6 * rnd()) : w * 0.06 * rnd();
+        out.push([Lc[0] + (Rc[0] - Lc[0]) * t + dir[0] * reach, Lc[1] + (Rc[1] - Lc[1]) * t + dir[1] * reach]);
+      }
+      return out;
+    }
+    for (k = 1; k < 8; k++) { var ang = base + Math.PI / 2 - Math.PI * k / 8; out.push([c[0] + Math.cos(ang) * r, c[1] + Math.sin(ang) * r]); }
+    return out;
+  };
+  var wn = widths[n - 1], w0 = widths[0];
+  var poly = Lp.concat(cap(pts[n - 1], dirs[n - 1], wn / 2, wn), Rp.slice().reverse(), cap(pts[0], [-dirs[0][0], -dirs[0][1]], w0 / 2, w0));
+  return poly.map(r2);
+}
+/** @returns {number[][]} Points spread evenly along the line, `step` apart, each with the pen pressure there as a third number. */
+function skResampleP(pts, pr, step) {
+  var out = [[pts[0][0], pts[0][1], pr[0]]], carry = 0, i;
+  for (i = 1; i < pts.length; i++) {
+    var a = pts[i - 1], b = pts[i], d = Math.hypot(b[0] - a[0], b[1] - a[1]), pos = carry;
+    while (pos + step <= d) {
+      pos += step;
+      var t = pos / d;
+      out.push([a[0] + (b[0] - a[0]) * t, a[1] + (b[1] - a[1]) * t, pr[i - 1] + (pr[i] - pr[i - 1]) * t]);
+    }
+    carry = pos - d;
+  }
+  return out;
+}
+/** @returns {Object} The line as drawn with its brush: one filled shape (see the notes at the top of this section). */
+function skBrushStroke(s) {
+  var v = SK_VIEW[SK.mode], w = s.width, b = s.brush, rng = skRng(skBrushSeed(s)), pr = s.pr || s.pts.map(function () { return 1; });
+  var thin = +(v.w * 0.0015).toFixed(2);   // the fill's own outline, as thin as a pressure line's
+  var out = { pts: [], color: s.color, width: thin, fill: true, closed: true, lay: s.lay, style: 'solid', brush: b };
+  if (s.clip) out.clip = true;
+  if (b === 'spray' || b === 'sparkle' || b === 'hearts' || b === 'bubbles') return skStampStroke(s, out, rng, pr);
+  var pts = skSmoothPts(s.pts, b === 'pencil' || b === 'rough' ? 1 : 2), len = skArcLen(pts), ws, o = { cap: 'round', rng: rng };
+  var P = function (f) { return pr.map(f); };
+  if (b === 'gpen') { ws = skTaper(len, P(function (p) { return w * Math.pow(p, 1.5); }), w * 2.5, w * 3); }
+  else if (b === 'map') { ws = skTaper(len, P(function (p) { return w * 0.45 * Math.pow(p, 0.9); }), w * 2, w * 2); }
+  else if (b === 'sumi') {   // slow is fat, a flick is thin
+    var sf = skSmoothArr(len.map(function (l, i) { return i ? Math.max(0.3, Math.min(1.3, 1.3 - (l - len[i - 1]) / (w * 1.5))) : 1; }), 3);
+    ws = skTaper(len, P(function (p, i) { return w * 1.3 * (0.35 + 0.65 * p) * sf[i]; }), w * 4, w * 5);
+    o.jitter = 0.04;
+  }
+  else if (b === 'callig') {   // a flat nib at a slant: the width is how much of the nib crosses the way you are going
+    var nib = -Math.PI / 4;
+    ws = skSmoothArr(pts.map(function (p, i) {
+      var a = pts[Math.max(0, i - 1)], c = pts[Math.min(pts.length - 1, i + 1)], ang = Math.atan2(c[1] - a[1], c[0] - a[0]);
+      return w * 1.4 * Math.max(0.1, Math.abs(Math.sin(ang - nib)));
+    }), 2);
+    o.cap = 'flat';
+  }
+  else if (b === 'marker') { ws = P(function (p) { return w * 1.15 * (0.9 + 0.1 * Math.min(1, p)); }); o.cap = 'flat'; }
+  else if (b === 'pencil') { ws = P(function (p) { return w * 0.5 * (0.8 + 0.3 * p); }); o.jitter = 0.22; }
+  else if (b === 'rough') { ws = skTaper(len, P(function (p) { return w * Math.pow(p, 1.2); }), w * 1.5, w * 1.5); o.jitter = 0.12; o.nick = 0.08; }
+  else if (b === 'bristle') { ws = P(function (p) { return w * 1.2 * (0.85 + 0.15 * Math.min(1, p)); }); o.jitter = 0.05; o.cap = 'fray'; }
+  else if (b === 'water') {   // a wide soft wash: the blur comes from the Soft line style, sized by the fill's outline width
+    out.style = 'soft'; out.width = thin = +(w * 0.7).toFixed(2);
+    ws = P(function (p) { return w * 1.7 * (0.55 + 0.45 * p); });
+  }
+  else { ws = P(function (p) { return w * p; }); }
+  out.pts = skBrushPoly(pts, ws.map(function (x) { return Math.max(0.02, x - thin); }), o);
+  return out;
+}
+var skStampShapes = {};
+/** @returns {Object} A scatter brush's line: dots, sparkles, hearts or bubbles along it, as loops in one path (`d`); `pts` is the line itself, for picking it. */
+function skStampStroke(s, out, rng, pr) {
+  var v = SK_VIEW[SK.mode], w = s.width, b = s.brush, loops = [], placed = [], fine = skResampleP(s.pts, pr, Math.max(w * 0.15, v.w * 0.0006)), i;
+  var f2 = function (n) { return Math.round(n * 100) / 100; };
+  var loop = function (poly) { return 'M' + poly.map(function (p) { return f2(p[0]) + ' ' + f2(p[1]); }).join('L') + 'Z'; };
+  var cell = Math.max(w * (b === 'spray' ? 0.25 : 2.5), v.w * 0.002), grid = {};   // the stamps so far, by square, so a long line stays quick to draw
+  var key = function (x, y) { return Math.floor(x / cell) + ',' + Math.floor(y / cell); };
+  var place = function (x, y, r) { var k = key(x, y); (grid[k] || (grid[k] = [])).push([x, y, r]); placed.push([x, y, r]); };
+  var free = function (x, y, r) {
+    var cx = Math.floor(x / cell), cy = Math.floor(y / cell), i2, j2, k2, near;
+    for (i2 = -1; i2 <= 1; i2++) for (j2 = -1; j2 <= 1; j2++) if ((near = grid[(cx + i2) + ',' + (cy + j2)])) for (k2 = 0; k2 < near.length; k2++) { var q = near[k2]; if (Math.hypot(q[0] - x, q[1] - y) < (q[2] + r) * 0.95) return false; }
+    return true;
+  };
+  var ring = function (cx, cy, r, n) { var o = []; for (var k = 0; k < n; k++) o.push([cx + Math.cos(k * 2 * Math.PI / n) * r, cy + Math.sin(k * 2 * Math.PI / n) * r]); return o; };
+  if (!fine.length) fine = [[s.pts[0][0], s.pts[0][1], pr[0]]];
+  if (b === 'spray') {
+    var rMin = Math.max(v.w * 0.001, w * 0.025);
+    for (i = 0; i < fine.length && loops.length < 1500; i++) {
+      var spread = w * 0.6 * Math.min(1.2, fine[i][2]);
+      for (var t = 0; t < 3; t++) {
+        var ang = rng() * 2 * Math.PI, rad = spread * (rng() + rng()) / 2, r = rMin + w * 0.07 * rng() * rng();
+        var x = fine[i][0] + Math.cos(ang) * rad, y = fine[i][1] + Math.sin(ang) * rad;
+        if (!free(x, y, r)) continue;
+        place(x, y, r); loops.push(loop(ring(x, y, r, 8)));
+      }
+    }
+  } else {
+    var id = b === 'sparkle' ? 'sparkle' : b === 'hearts' ? 'heart' : 'circle';
+    var shape = skStampShapes[id] || (skStampShapes[id] = L.sketchShape(id).map(function (p) { return [p[0] - 0.5, p[1] - 0.5]; }));
+    var last = null;
+    for (i = 0; i < fine.length && loops.length < 900; i++) {
+      var size = w * 2.4 * (0.4 + 0.6 * rng()) * (0.6 + 0.4 * Math.min(1, fine[i][2])), cx = fine[i][0], cy = fine[i][1];
+      if (last && Math.hypot(cx - last[0], cy - last[1]) < (last[2] + size / 2) * 1.1) continue;
+      if (!free(cx, cy, size / 2)) continue;
+      last = [cx, cy, size / 2]; place(cx, cy, size / 2);
+      if (b === 'bubbles') {   // a ring (the hole is the second loop, evenodd) with a little shine inside
+        loops.push(loop(ring(cx, cy, size / 2, 24)), loop(ring(cx, cy, size * 0.36, 20)), loop(ring(cx - size * 0.2, cy - size * 0.2, size * 0.08, 8)));
+        continue;
+      }
+      var rot = (rng() - 0.5) * (b === 'sparkle' ? Math.PI / 3 : Math.PI / 4.5), cs = Math.cos(rot), sn = Math.sin(rot);
+      loops.push(loop(shape.map(function (p) { return [cx + (p[0] * cs - p[1] * sn) * size, cy + (p[0] * sn + p[1] * cs) * size]; })));
+    }
+    if (!loops.length) {   // a tap: one stamp
+      var sz = w * 2;
+      loops.push(b === 'bubbles' ? loop(ring(fine[0][0], fine[0][1], sz / 2, 24)) + loop(ring(fine[0][0], fine[0][1], sz * 0.36, 20)) : loop(shape.map(function (p) { return [fine[0][0] + p[0] * sz, fine[0][1] + p[1] * sz]; })));
+    }
+  }
+  out.d = loops.join('');
+  out.pts = skResampleP(s.pts, pr, Math.max(w, v.w * 0.004)).map(function (p) { return [f2(p[0]), f2(p[1])]; });
+  if (out.pts.length < 2) out.pts = [[f2(s.pts[0][0]), f2(s.pts[0][1])], [f2(s.pts[s.pts.length - 1][0]), f2(s.pts[s.pts.length - 1][1])]];
+  return out;
 }
 /** Pressing with the shape tool: the shape grows from this corner as you drag. */
 function skShapeDown(pt) {
@@ -2510,7 +2713,7 @@ function skBuildPanels() {
   }));
   var sh = $('skShape');
   sh.replaceChildren.apply(sh, L.SKETCH_SHAPES.map(function (x) { var o = document.createElement('option'); o.value = x[0]; o.textContent = x[1]; return o; }));
-  sh.value = SK.shape; $('skStyle').value = SK.style; $('skFillMode').value = SK.fillMode; $('skColour2').value = SK.colour2;
+  sh.value = SK.shape; skOptions($('skBrush'), SK_BRUSHES.map(function (x) { return [x[0], x[1]]; }), SK.brush); $('skStyle').value = SK.style; $('skFillMode').value = SK.fillMode; $('skColour2').value = SK.colour2;
   skPress($('skTidy'), 'tidy', SK.tidy);
   $('skMirror').setAttribute('aria-pressed', String(SK.mirror));
   $('skClip').setAttribute('aria-pressed', String(SK.bodyClip)); $('skClip').hidden = SK.mode !== 'pet';
@@ -2804,7 +3007,7 @@ document.addEventListener('keyup', function (e) { if (e.target.matches && e.targ
 $('skHist').addEventListener('toggle', skHistLog);
 $('skHistList').addEventListener('click', function (e) { var b = e.target.closest('[data-step]'); if (b) skHistGo(+b.dataset.step); });
 // ---------- settings tabs and the About page ----------
-var SK_BUILD = 2, SK_BUILD_DATE = '2026-10-11';   // raise SK_BUILD (and the date) with every change that goes out: the About page shows them
+var SK_BUILD = 3, SK_BUILD_DATE = '2026-10-12';   // raise SK_BUILD (and the date) with every change that goes out: the About page shows them
 function skPrefTab(name) {
   document.querySelectorAll('#skPrefTabs [data-ptab]').forEach(function (b) { b.setAttribute('aria-selected', String(b.dataset.ptab === name)); });
   document.querySelectorAll('#skPrefsDlg [data-ppane]').forEach(function (p) { p.hidden = p.dataset.ppane !== name; });
@@ -3054,6 +3257,12 @@ $('skStyle').addEventListener('change', function () {
     picked.forEach(function (s) { s.style = SK.style; });
     skRedraw(); skXfRender(); skSave();
   }
+});
+$('skBrush').addEventListener('change', function () {
+  SK.brush = $('skBrush').value; skSave();
+  if (SK.tool !== 'pen') skSetTool('pen');
+  var b = SK_BRUSHES.filter(function (x) { return x[0] === SK.brush; })[0];
+  skStatus.textContent = b ? b[2] + (SK.brush === 'plain' ? '' : ' Brushes skip the Line list and Tidy, and only change new lines.') : '';
 });
 ['skGrid', 'skRef', 'skGhost'].forEach(function (id) { $(id).addEventListener('input', skApplyLook); });
 $('skSpecies').addEventListener('change', function () { P.species = $('skSpecies').value; P.skin = ''; skSkins(); skSave(); skBuild(); });
