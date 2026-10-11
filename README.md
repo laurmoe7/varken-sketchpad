@@ -19,7 +19,7 @@ Uploads still go to the **`drawings` branch of `laurmoe7/pet-shopper`** (File > 
 
 Download `Varken-Sketchpad-Setup-….exe` from the repo's **Releases** and double-click it. Windows says "Windows protected your PC" because the program is not signed: **More info**, then **Run anyway**. It installs for you only (no admin) and starts the sketchpad in its own window, with its own icon, no browser around it. Everything is inside the installer, so it works offline (the AI cut-out model still needs the internet the first time, and uploads to GitHub need it).
 
-- It updates itself: every change to the page builds a new release (Actions > "Build the desktop app (Windows)"), and installed copies download it quietly and install it when you close the program.
+- It updates itself: every change to the page builds a new release (Actions > "Build the desktop app (Windows)"), and installed copies download it quietly, ask "Restart now / Later" when it is ready, and install it on restart or the next time you close the program.
 - It has its own saved data. Your drawings, preferences and GitHub token from the browser version are not in it: use File > Save project in the browser first and File > Open project here, and paste the token again (File > GitHub connection).
 - The desktop program is `desktop/main.js` (a small Electron shell that serves the page's own files under `sketch://app/`), with `package.json` (the build settings) and `.github/workflows/desktop.yml`. To try it on a computer with Node: `npm install`, then `npm start`.
 

@@ -1,7 +1,7 @@
 'use strict';
 // Varken Sketchpad as a Windows program: the same page, in its own window, with everything inside the installer
 // (nothing is loaded from the web except the optional AI cut-out model and your uploads to GitHub).
-const { app, BrowserWindow, Menu, protocol, net, shell, session } = require('electron');
+const { app, BrowserWindow, Menu, protocol, net, shell, session, dialog } = require('electron');
 const path = require('path');
 const { pathToFileURL } = require('url');
 
@@ -44,14 +44,22 @@ function start() {
   app.on('window-all-closed', () => app.quit());
 }
 
-/** Installed copies look for a newer release on GitHub, download it quietly and install it when the program is next closed. */
+/** Installed copies look for a newer release on GitHub and download it quietly; when it is ready they ask whether to restart now. */
 function checkForUpdates() {
   if (!app.isPackaged) return;
   try {
     const { autoUpdater } = require('electron-updater');
     autoUpdater.autoDownload = true;
-    autoUpdater.autoInstallOnAppQuit = true;
+    autoUpdater.autoInstallOnAppQuit = true;   // "Later" still installs it the next time the program is closed
     autoUpdater.on('error', () => { /* offline or no release yet: try again next time */ });
+    let asked = '';
+    autoUpdater.on('update-downloaded', (info) => {
+      if (asked === info.version) return;   // one question per version
+      asked = info.version;
+      const options = { type: 'question', buttons: ['Restart now', 'Later'], defaultId: 0, cancelId: 1, title: 'Varken Sketchpad',
+        message: 'A new version (' + info.version + ') is ready.', detail: 'Restart to use it. Save your work first if you have not: your drawing is kept, but anything in a menu or box will close.' };
+      (win ? dialog.showMessageBox(win, options) : dialog.showMessageBox(options)).then((r) => { if (r.response === 0) autoUpdater.quitAndInstall(); }).catch(() => {});
+    });
     autoUpdater.checkForUpdates().catch(() => {});
     setInterval(() => autoUpdater.checkForUpdates().catch(() => {}), 6 * 3600 * 1000);
   } catch (e) { /* the updater is not there: nothing to do */ }
