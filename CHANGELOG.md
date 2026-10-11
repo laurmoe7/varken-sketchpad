@@ -2,5 +2,8 @@
 
 What changed in the sketchpad, newest first. The history before this repo existed is in the pet-shopper changelog (the sketchpad lines under Build 235 and later).
 
+## Works on its own
+- The game files it needs are copied into `game/`, with a script to refresh them (`node tools/sync-from-game.js`).
+
 ## Moved into its own repo
 - The sketchpad now lives here and loads the game files from the game site.

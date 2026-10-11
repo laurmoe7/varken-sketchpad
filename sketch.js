@@ -33,7 +33,7 @@ var SK_OWNER = false, skDraw = null, skDrawing = false, skPan = null, skPetSvg =
 // ---------- borrowing the pet from the game ----------
 /** Fetches the game's page and keeps its pet drawing (with its gradients and clip) and its toys, hidden, to copy from. */
 function skLoadSource() {
-  return fetch((window.SK_GAME || '') + 'index.html', { cache: 'no-cache' }).then(function (r) {
+  return fetch(window.SK_SOURCE || 'game/source.html', { cache: 'no-cache' }).then(function (r) {
     if (!r.ok) throw new Error('index.html ' + r.status);
     return r.text();
   }).then(function (html) {

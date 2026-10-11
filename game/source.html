@@ -1,0 +1,629 @@
+<!doctype html>
+<!-- made by tools/sync-from-game.js from the game's index.html: only the pet and the toy -->
+<html><body>
+<div class="pet beaked" id="pet" data-state="sleepy" data-species="birdie" data-skin="pigeon" data-arms="rest" aria-label="Fumu, your pet">
+        <div class="squash"><svg viewBox="0 0 160 150" class="pet-svg" aria-hidden="true">
+          <defs>
+            <!-- a slight wobble so the lines look drawn by hand -->
+            <!-- the body shape, so markings like the cat's tabby stripes stop at the edge -->
+            <!-- the bedtime quilt's shape and fabrics -->
+            <clipPath id="quiltClip"><path d="M5 116 Q3 147 22 148 H138 Q157 147 155 116 Z"/></clipPath>
+            <pattern id="qDots" width="7" height="7" patternUnits="userSpaceOnUse"><rect width="7" height="7" fill="#ffc4d3"/><circle cx="2" cy="2" r="1.1" fill="#fff"/><circle cx="5.5" cy="5.5" r="1.1" fill="#fff"/></pattern>
+            <pattern id="qPeachDots" width="6" height="6" patternUnits="userSpaceOnUse"><rect width="6" height="6" fill="#fff0b0"/><circle cx="3" cy="3" r="1.2" fill="#ffb3a0"/></pattern>
+            <pattern id="qGingham" width="8" height="8" patternUnits="userSpaceOnUse"><rect width="8" height="8" fill="#e6f7ec"/><rect width="4" height="8" fill="#a8dfbe" opacity=".55"/><rect width="8" height="4" fill="#a8dfbe" opacity=".55"/></pattern>
+            <pattern id="qStripes" width="6" height="6" patternUnits="userSpaceOnUse" patternTransform="rotate(35)"><rect width="6" height="6" fill="#d6ccf5"/><rect width="2.4" height="6" fill="#fff" opacity=".7"/></pattern>
+            <!-- the dragon's horn rings and wing bones are cut off at their outlines -->
+            <clipPath id="dragonWingL"><path d="M26 86 Q10 70 -2 60 Q4 76 -8 86 Q6 88 2 102 Q16 98 26 98 Z"/></clipPath>
+            <clipPath id="dragonWingR"><path d="M134 86 Q150 70 162 60 Q156 76 168 86 Q154 88 158 102 Q144 98 134 98 Z"/></clipPath>
+            <clipPath id="dragonHornL"><path d="M52 56 Q36 36 42 6 Q48 4 56 14 Q66 28 70 48 Z"/></clipPath>
+            <clipPath id="dragonHornR"><path d="M108 56 Q124 36 118 6 Q112 4 104 14 Q94 28 90 48 Z"/></clipPath>
+            <clipPath id="bodyClip"><path d="M80 139 C41 139 13 129 13 102 C13 70 36 38 80 38 C124 38 147 70 147 102 C147 129 119 139 80 139 Z"/></clipPath>
+            <!-- the rainbow axolotl's pastel body and the pigeon's shiny neck -->
+            <linearGradient id="axoRainbow" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#ffc9dc"/><stop offset=".25" stop-color="#ffe2bd"/><stop offset=".45" stop-color="#fff3b8"/><stop offset=".65" stop-color="#ccf2d8"/><stop offset=".82" stop-color="#c9e5ff"/><stop offset="1" stop-color="#e2d3ff"/></linearGradient>
+            <linearGradient id="pigeonSheen" x1="0" y1="0" x2="1" y2="0"><stop offset="0" stop-color="#8fd9bf"/><stop offset=".5" stop-color="#b9a3e8"/><stop offset="1" stop-color="#8fd9bf"/></linearGradient>
+            <linearGradient id="pigeonChest" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#f5b3cc" stop-opacity="0"/><stop offset=".45" stop-color="#f5b3cc" stop-opacity=".1"/><stop offset="1" stop-color="#f5b3cc" stop-opacity=".34"/></linearGradient>
+            <radialGradient id="pigeonIris" cx=".5" cy=".38" r=".7"><stop offset="0" stop-color="#ffc56e"/><stop offset="1" stop-color="#f0832e"/></radialGradient>
+            <!-- the Siamese mask: darkest round the nose, fading out towards the eyes and cheeks -->
+            <radialGradient id="siameseFade" cx=".5" cy=".58" r=".5"><stop offset="0" stop-color="#7a5a49" stop-opacity=".92"/><stop offset=".45" stop-color="#86685a" stop-opacity=".8"/><stop offset="1" stop-color="#a98670" stop-opacity="0"/></radialGradient>
+          </defs>
+          <g class="pet-body">
+            <!-- each foot is its own group so it can step, tap and tuck (styles.css). Paws, hooves and bird toes peek out
+                 under the feet (which species gets which is set in styles.css) -->
+            <g class="foot-side foot-l"><g data-sp="frog" class="frog-feet"><path class="frog-web" d="M47 138 Q47 149 51.5 147.5 Q54.5 143.5 58 148 Q61.5 143.5 64.5 147.5 Q69 149 69 138 Z"/></g><g class="paw-part paw-feet"><path class="paw-toes" d="M47 137 Q47 144.6 50.6 144.6 Q52.5 146.6 54.4 144.9 Q58 147 61.6 144.9 Q63.5 146.6 65.4 144.6 Q69 144.6 69 137 Z"/><path class="paw-line" d="M54.4 143 v1.8 M61.6 143 v1.8"/></g><g class="hoof-part hoof-feet"><path class="hoof" d="M47.2 137.6 L47.8 144.4 Q52.6 146.4 57.1 144.8 L58 142.4 L58.9 144.8 Q63.4 146.4 68.2 144.4 L68.8 137.6 Z"/></g><g class="bird-part bird-feet"><ellipse class="bird-toe" cx="51.6" cy="143.2" rx="3.4" ry="2.4" transform="rotate(-28 51.6 143.2)"/><ellipse class="bird-toe" cx="64.4" cy="143.2" rx="3.4" ry="2.4" transform="rotate(28 64.4 143.2)"/><ellipse class="bird-toe" cx="58" cy="144.6" rx="3.2" ry="2.6"/></g><g class="monkey-part monkey-feet"><path class="monkey-toes" d="M70 136 L70 138 Q69 144 65 144.4 Q62 147 59 144.8 Q56 147 53 144.4 Q50 146 47 144.4 Q42 145 40.5 141 Q40 137 46 136 Z"/><path class="paw-line" d="M53 143 v1.6 M59 143.6 v1.6 M65 143 v1.6"/></g><ellipse class="foot" cx="58" cy="137" rx="11" ry="6"/></g>
+            <g class="foot-side foot-r"><g data-sp="frog" class="frog-feet"><path class="frog-web" d="M91 138 Q91 149 95.5 147.5 Q98.5 143.5 102 148 Q105.5 143.5 108.5 147.5 Q113 149 113 138 Z"/></g><g class="paw-part paw-feet"><path class="paw-toes" d="M91 137 Q91 144.6 94.6 144.6 Q96.5 146.6 98.4 144.9 Q102 147 105.6 144.9 Q107.5 146.6 109.4 144.6 Q113 144.6 113 137 Z"/><path class="paw-line" d="M98.4 143 v1.8 M105.6 143 v1.8"/></g><g class="hoof-part hoof-feet"><path class="hoof" d="M91.2 137.6 L91.8 144.4 Q96.6 146.4 101.1 144.8 L102 142.4 L102.9 144.8 Q107.4 146.4 112.2 144.4 L112.8 137.6 Z"/></g><g class="bird-part bird-feet"><ellipse class="bird-toe" cx="95.6" cy="143.2" rx="3.4" ry="2.4" transform="rotate(-28 95.6 143.2)"/><ellipse class="bird-toe" cx="108.4" cy="143.2" rx="3.4" ry="2.4" transform="rotate(28 108.4 143.2)"/><ellipse class="bird-toe" cx="102" cy="144.6" rx="3.2" ry="2.6"/></g><g class="monkey-part monkey-feet"><path class="monkey-toes" d="M90 136 L90 138 Q91 144 95 144.4 Q98 147 101 144.8 Q104 147 107 144.4 Q110 146 113 144.4 Q118 145 119.5 141 Q120 137 114 136 Z"/><path class="paw-line" d="M107 143 v1.6 M101 143.6 v1.6 M95 143 v1.6"/></g><ellipse class="foot" cx="102" cy="137" rx="11" ry="6"/></g>
+            <g class="squish">
+              <!-- species parts drawn behind the body -->
+              <g data-sp="axolotl"><g class="ear-g ear-l"><g class="gill-line"><path d="M24 78 Q12 74 6 62"/><path d="M20 89 Q8 89 2 81"/><path d="M26 68 Q18 60 16 48"/><circle cx="6" cy="62" r="4.6"/><circle cx="2" cy="81" r="4.6"/><circle cx="16" cy="48" r="4.6"/></g><g class="gill-fill"><path d="M24 78 Q12 74 6 62"/><path d="M20 89 Q8 89 2 81"/><path d="M26 68 Q18 60 16 48"/><circle cx="6" cy="62" r="3.2"/><circle cx="2" cy="81" r="3.2"/><circle cx="16" cy="48" r="3.2"/></g></g><g class="ear-g ear-r"><g class="gill-line"><path d="M136 78 Q148 74 154 62"/><path d="M140 89 Q152 89 158 81"/><path d="M134 68 Q142 60 144 48"/><circle cx="154" cy="62" r="4.6"/><circle cx="158" cy="81" r="4.6"/><circle cx="144" cy="48" r="4.6"/></g><g class="gill-fill"><path d="M136 78 Q148 74 154 62"/><path d="M140 89 Q152 89 158 81"/><path d="M134 68 Q142 60 144 48"/><circle cx="154" cy="62" r="3.2"/><circle cx="158" cy="81" r="3.2"/><circle cx="144" cy="48" r="3.2"/></g></g></g>
+              <g data-sp="bunny">
+                <g class="ear-g ear-l">
+                  <path class="ear" d="M58 52 C46 24 47 4 58 5 C69 6 72 28 70 46"/>
+                  <path class="ear-in" d="M59 44 C52 26 53 13 58 13 C63 14 65 28 64 42"/>
+                </g>
+                <g class="ear-g ear-r">
+                  <path class="ear" d="M102 52 C114 24 113 4 102 5 C91 6 88 28 90 46"/>
+                  <path class="ear-in" d="M101 44 C108 26 107 13 102 13 C97 14 95 28 96 42"/>
+                </g>
+              </g>
+              <g data-sp="kitty" class="kitty-ears">
+                <g class="ear-g ear-l">
+                  <path class="ear" d="M34 66 L40 28 Q42 22 47 25 L72 42"/>
+                  <path class="ear-in" d="M41 52 L44 33 L58 43"/>
+                </g>
+                <g class="ear-g ear-r">
+                  <path class="ear" d="M126 66 L120 28 Q118 22 113 25 L88 42"/>
+                  <path class="ear-in" d="M119 52 L116 33 L102 43"/>
+                </g>
+              </g>
+              <g data-sp="birdie" class="tuft">
+                <path d="M74 41 C70 30 76 25 80 28 C78 31 78 35 79 39"/>
+                <path d="M80 39 C80 24 90 21 92 26 C87 27 85 32 84 39"/>
+              </g>
+              <g data-sk="parrot" class="crest">
+                <path class="crest-red" d="M69 42 C61 34 62 24 68 23 C73 27 74 35 74 42 Z"/>
+                <path class="crest-yellow" d="M75 41 C71 28 76 16 82 14 C87 19 87 31 85 41 Z"/>
+                <path class="crest-blue" d="M85 42 C87 34 93 28 99 30 C99 36 94 41 91 43 Z"/>
+              </g>
+
+              <g data-sp="hamster">
+                <g class="ear-g ear-l">
+                  <circle class="ear" cx="50" cy="48" r="11"/>
+                  <circle class="ear-in" cx="50" cy="48" r="6"/>
+                </g>
+                <g class="ear-g ear-r">
+                  <circle class="ear" cx="110" cy="48" r="11"/>
+                  <circle class="ear-in" cx="110" cy="48" r="6"/>
+                </g>
+              </g>
+              <g data-sp="mouse">
+                <g class="ear-g ear-l">
+                  <circle class="ear" cx="34" cy="50" r="24"/>
+                  <circle class="ear-in" cx="34" cy="50" r="15"/>
+                </g>
+                <g class="ear-g ear-r">
+                  <circle class="ear" cx="126" cy="50" r="24"/>
+                  <circle class="ear-in" cx="126" cy="50" r="15"/>
+                </g>
+              </g>
+              <g data-sp="monkey">
+                <g class="ear-g ear-l">
+                  <circle class="ear" cx="12" cy="80" r="16"/>
+                  <circle class="ear-in" cx="12" cy="80" r="9"/>
+                </g>
+                <g class="ear-g ear-r">
+                  <circle class="ear" cx="148" cy="80" r="16"/>
+                  <circle class="ear-in" cx="148" cy="80" r="9"/>
+                </g>
+              </g>
+              <g data-sp="dragon">
+                <g class="ear-g ear-l"><path class="dragon-wing" d="M26 86 Q10 70 -2 60 Q4 76 -8 86 Q6 88 2 102 Q16 98 26 98 Z"/><path class="wing-bone" clip-path="url(#dragonWingL)" d="M26 90 L-2 60 M26 90 L-8 86 M26 90 L2 102"/><path class="wing-edge" d="M26 86 Q10 70 -2 60 Q4 76 -8 86 Q6 88 2 102 Q16 98 26 98 Z"/></g>
+                <g class="ear-g ear-r"><path class="dragon-wing" d="M134 86 Q150 70 162 60 Q156 76 168 86 Q154 88 158 102 Q144 98 134 98 Z"/><path class="wing-bone" clip-path="url(#dragonWingR)" d="M134 90 L162 60 M134 90 L168 86 M134 90 L158 102"/><path class="wing-edge" d="M134 86 Q150 70 162 60 Q156 76 168 86 Q154 88 158 102 Q144 98 134 98 Z"/></g>
+                <g class="dragon-horn"><path class="horn-fill" d="M52 56 Q36 36 42 6 Q48 4 56 14 Q66 28 70 48 Z"/><path class="horn-ring" clip-path="url(#dragonHornL)" d="M43 24 Q50 24 56 30 M40 36 Q48 36 56 42"/><path class="horn-edge" d="M52 56 Q36 36 42 6 Q48 4 56 14 Q66 28 70 48 Z"/></g>
+                <g class="dragon-horn"><path class="horn-fill" d="M108 56 Q124 36 118 6 Q112 4 104 14 Q94 28 90 48 Z"/><path class="horn-ring" clip-path="url(#dragonHornR)" d="M117 24 Q110 24 104 30 M120 36 Q112 36 104 42"/><path class="horn-edge" d="M108 56 Q124 36 118 6 Q112 4 104 14 Q94 28 90 48 Z"/></g>
+              </g>
+              <g data-sp="cow">
+                <g class="ear-g ear-l">
+                  <ellipse class="ear" cx="30" cy="62" rx="13" ry="6.5" transform="rotate(-25 30 62)"/>
+                  <ellipse class="ear-in" cx="30" cy="62" rx="7" ry="3" transform="rotate(-25 30 62)"/>
+                </g>
+                <g class="ear-g ear-r">
+                  <ellipse class="ear" cx="130" cy="62" rx="13" ry="6.5" transform="rotate(25 130 62)"/>
+                  <ellipse class="ear-in" cx="130" cy="62" rx="7" ry="3" transform="rotate(25 130 62)"/>
+                </g>
+                <path class="horn" d="M60 46 C55 35 58 27 64 29 C64 34 66 39 69 42 Z"/>
+                <path class="horn" d="M100 46 C105 35 102 27 96 29 C96 34 94 39 91 42 Z"/>
+              </g>
+              <g data-sp="hedgehog">
+                <g class="hog-spines"><path d="M13.3 95.6 Q0.0 83.8 15.4 84.3 L20.2 85.7 L18.3 96.1 Z"/><path d="M15.4 84.3 Q5.1 70.6 19.4 73.6 L23.9 75.7 L20.2 85.7 Z"/><path d="M19.4 73.6 Q10.3 57.4 25.3 63.7 L29.3 66.6 L23.9 75.7 Z"/><path d="M25.3 63.7 Q20.4 47.1 32.9 55.1 L36.3 58.8 L29.3 66.6 Z"/><path d="M32.9 55.1 Q31.5 38.3 42.0 48.1 L44.7 52.4 L36.3 58.8 Z"/><path d="M42.0 48.1 Q43.0 29.6 52.3 43.0 L54.1 47.6 L44.7 52.4 Z"/><path d="M52.3 43.0 Q55.5 22.1 63.3 39.7 L64.3 44.6 L54.1 47.6 Z"/><path d="M63.3 39.7 Q69.9 20.3 74.7 38.2 L75.0 43.2 L64.3 44.6 Z"/><path d="M74.7 38.2 Q84.0 20.0 86.2 38.2 L85.8 43.2 L75.0 43.2 Z"/><path d="M86.2 38.2 Q97.4 24.6 97.5 39.9 L96.4 44.7 L85.8 43.2 Z"/><path d="M97.5 39.9 Q111.3 26.4 108.5 43.3 L106.6 47.9 L96.4 44.7 Z"/><path d="M108.5 43.3 Q123.7 33.8 118.7 48.6 L116.0 52.8 L106.6 47.9 Z"/><path d="M118.7 48.6 Q135.0 42.7 127.7 55.7 L124.2 59.3 L116.0 52.8 Z"/><path d="M127.7 55.7 Q144.6 53.2 135.2 64.4 L131.1 67.3 L124.2 59.3 Z"/><path d="M135.2 64.4 Q152.8 64.8 141.0 74.3 L136.4 76.4 L131.1 67.3 Z"/><path d="M141.0 74.3 Q162.1 76.5 144.8 85.1 L140.0 86.4 L136.4 76.4 Z"/><path d="M144.8 85.1 Q164.7 91.0 146.8 96.4 L141.8 96.9 L140.0 86.4 Z"/></g>
+              </g>
+              <g data-sp="pig" transform="translate(0 -4)">
+                <g class="ear-g ear-l">
+                  <path class="ear" d="M44 54 C38 40 42 30 49 33 C57 37 63 43 66 47 C59 50 52 53 44 54Z"/>
+                  <path class="ear-in" d="M48 48 C46 41 48 37 51 39 C55 41 58 44 59 46 C55 47 52 48 48 48Z"/>
+                </g>
+                <g class="ear-g ear-r">
+                  <path class="ear" d="M116 54 C122 40 118 30 111 33 C103 37 97 43 94 47 C101 50 108 53 116 54Z"/>
+                  <path class="ear-in" d="M112 48 C114 41 112 37 109 39 C105 41 102 44 101 46 C105 47 108 48 112 48Z"/>
+                </g>
+              </g>
+              <!-- skins: parts drawn behind the body -->
+              <!-- the Scottish fold's ears: folded forward, behind the head like the other cats' ears -->
+              <g data-sk="scottishfold" class="fold-ears">
+                <g class="ear-g ear-l"><path class="ear" d="M37 45 C40 37 48 33 56 34 C64 35 69 40 69 46 C61 47 51 50 42 57 C38 54 36.6 50 37 45 Z"/><path class="ear-crease" d="M41 43 C46 38 55 37 63 40"/></g>
+                <g class="ear-g ear-r"><path class="ear" d="M 123 45 C 120 37 112 33 104 34 C 96 35 91 40 91 46 C 99 47 109 50 118 57 C 122 54 123.4 50 123 45Z"/><path class="ear-crease" d="M 119 43 C 114 38 105 37 97 40"/></g>
+              </g>
+
+              <g data-sk="cairn" class="up-ears">
+                <g class="ear-g ear-l">
+                  <path class="ear" d="M42 58 C40 46 42 32 48 24 C56 30 64 38 70 46 Z"/>
+                  <path class="ear-in" d="M47 50 C46 42 47 35 50 30 C55 35 60 40 63 45 Z"/>
+                </g>
+                <g class="ear-g ear-r">
+                  <path class="ear" d="M 118 58 C 120 46 118 32 112 24 C 104 30 96 38 90 46Z"/>
+                  <path class="ear-in" d="M 113 50 C 114 42 113 35 110 30 C 105 35 100 40 97 45Z"/>
+                </g>
+              </g>
+
+              <g data-sk="pomeranian blackpom longhair ragdoll" class="fur"><path d="M30.3 129.8 C20.9 147.2 1.2 129.5 17.7 118.7 L22.7 115.4 L33.2 124.5 Z"/><path d="M17.7 118.7 C2.2 128.9 -5.6 102.9 13.0 102.6 L19.0 102.5 L22.7 115.4 Z"/><path d="M13.0 102.6 C-8.9 103.0 -6.3 80.4 15.0 85.8 L20.8 87.3 L19.0 102.5 Z"/><path d="M143.7 81.3 C160.9 75.7 164.9 96.8 146.9 97.9 L140.9 98.3 L138.0 83.1 Z"/><path d="M146.9 97.9 C168.0 96.7 164.0 123.0 144.5 114.6 L139.0 112.2 L140.9 98.3 Z"/><path d="M144.5 114.6 C162.9 122.5 145.0 143.9 133.7 127.4 L130.3 122.4 L139.0 112.2 Z"/></g>
+              <g data-sk="pomeranian blackpom">
+                <g class="ear-g ear-l">
+                  <path class="ear" d="M46 60 C38 48 38 30 49 25 C60 22 70 34 74 48 Z"/>
+                  <path class="ear-in" d="M51 50 C46 42 47 33 52 31 C58 30 63 38 65 46 Z"/>
+                </g>
+                <g class="ear-g ear-r">
+                  <path class="ear" d="M114 60 C122 48 122 30 111 25 C100 22 90 34 86 48 Z"/>
+                  <path class="ear-in" d="M109 50 C114 42 113 33 108 31 C102 30 97 38 95 46 Z"/>
+                </g>
+              </g>
+              <g data-sk="chihuahua">
+                <g class="ear-g ear-l">
+                  <path class="ear" d="M36 62 C29 42 27 22 33 11 C42 17 57 31 69 46 Z"/>
+                  <path class="ear-in" d="M40 53 C37 41 36 29 38 21 C45 26 53 34 60 43 Z"/>
+                </g>
+                <g class="ear-g ear-r">
+                  <path class="ear" d="M124 62 C131 42 133 22 127 11 C118 17 103 31 91 46 Z"/>
+                  <path class="ear-in" d="M120 53 C123 41 124 29 122 21 C115 26 107 34 100 43 Z"/>
+                </g>
+              </g>
+              <g data-sk="shiba" class="up-ears">
+                <g class="ear-g ear-l">
+                  <path class="ear" d="M38 62 C38 48 40 34 45 26 Q48 22 52 26 C60 32 66 38 71 44 Z"/>
+                  <path class="ear-in" d="M44 54 C44 44 46 36 48 31 C53 35 58 40 62 46 Z"/>
+                </g>
+                <g class="ear-g ear-r">
+                  <path class="ear" d="M 122 62 C 122 48 120 34 115 26 Q 112 22 108 26 C 100 32 94 38 89 44Z"/>
+                  <path class="ear-in" d="M 116 54 C 116 44 114 36 112 31 C 107 35 102 40 98 46Z"/>
+                </g>
+              </g>
+              <g data-sk="frenchie" class="up-ears">
+                <g class="ear-g ear-l">
+                  <path class="ear" d="M36 64 C26 50 24 28 32 16 C38 10 48 14 54 24 C60 32 66 40 70 46 Z"/>
+                  <path class="ear-in" d="M40 54 C34 44 33 30 37 23 C42 20 48 26 52 32 C56 38 60 42 62 46 Z"/>
+                </g>
+                <g class="ear-g ear-r">
+                  <path class="ear" d="M 124 64 C 134 50 136 28 128 16 C 122 10 112 14 106 24 C 100 32 94 40 90 46Z"/>
+                  <path class="ear-in" d="M 120 54 C 126 44 127 30 123 23 C 118 20 112 26 108 32 C 104 38 100 42 98 46Z"/>
+                </g>
+              </g>
+              <g data-sk="shepherd" class="up-ears">
+                <g class="ear-g ear-l">
+                  <path class="ear" d="M36 62 C33 46 34 26 42 12 Q44 9 47 12 C56 24 64 36 70 46 Z"/>
+                  <path class="ear-in" d="M42 52 C40 40 41 28 44 20 C50 28 56 37 61 45 Z"/>
+                </g>
+                <g class="ear-g ear-r">
+                  <path class="ear" d="M 124 62 C 127 46 126 26 118 12 Q 116 9 113 12 C 104 24 96 36 90 46Z"/>
+                  <path class="ear-in" d="M 118 52 C 120 40 119 28 116 20 C 110 28 104 37 99 45Z"/>
+                </g>
+              </g>
+              <g data-sk="chicken" class="chicken-comb">
+                <path d="M66 43 C61 33 69 26 74 32 C73 23 84 20 86 29 C89 22 99 25 96 35 C95 40 91 42 88 43 Z"/>
+              </g>
+              <g data-sk="highland" class="hl-horns">
+                <path class="hl-horn" d="M50 50 C34 52 18 44 14 26 C12 20 18 18 22 24 C28 36 40 42 54 42 Z"/>
+                <path class="hl-horn" d="M110 50 C126 52 142 44 146 26 C148 20 142 18 138 24 C132 36 120 42 106 42 Z"/>
+              </g>
+              <g data-sk="boar" class="boar-mane">
+                <path d="M46 48 L50 30 L58 42 L64 22 L72 40 L80 18 L88 40 L96 22 L102 42 L110 30 L114 48 Z"/>
+              </g>
+              <!-- plain ellipses under the head and belly: some phone GPUs leave a hairline crack inside a big curved path, and these show through it -->
+              <g data-sk="toad" class="toad-bumps"><circle cx="17.3" cy="78.5" r="3.4"/><circle cx="30" cy="58" r="2.4"/><circle cx="18" cy="119" r="2.6"/><circle cx="109" cy="43.5" r="3"/><circle cx="142" cy="119" r="3.2"/><circle cx="146.8" cy="100" r="2.4"/></g>
+            <ellipse class="skin-under" cx="80" cy="97" rx="58" ry="40"/>
+              <path class="skin" d="M80 139 C41 139 13 129 13 102 C13 70 36 38 80 38 C124 38 147 70 147 102 C147 129 119 139 80 139 Z"/>
+              <g data-sk="toad" class="toad-bumps-fill"><circle cx="17.3" cy="78.5" r="2.3"/><circle cx="30" cy="58" r="1.3"/><circle cx="18" cy="119" r="1.5"/><circle cx="109" cy="43.5" r="1.9"/><circle cx="142" cy="119" r="2.1"/><circle cx="146.8" cy="100" r="1.3"/></g>
+              <!-- the mochi's head and twist are one outline, so there is no seam where they meet -->
+              <path data-sp="mochi" class="skin skin-twist" d="M80 139 C41 139 13 129 13 102 C13 71.77 33.53 41.54 72.90 38.29 C74 31 80 27 86 30 C82 32 81 35 84.20 38.10 C125.46 40.07 147 71.03 147 102 C147 129 119 139 80 139 Z"/>
+              <path class="shine" d="M40 66 C46 56 54 51 62 48"/>
+              <!-- fur that melts into the body edge: the same shapes again, filled, covering the outline where the fur joins -->
+              <g data-sk="pomeranian blackpom longhair ragdoll" class="fur-blend"><path d="M30.3 129.8 C20.9 147.2 1.2 129.5 17.7 118.7 L22.7 115.4 L33.2 124.5 Z"/><path d="M17.7 118.7 C2.2 128.9 -5.6 102.9 13.0 102.6 L19.0 102.5 L22.7 115.4 Z"/><path d="M13.0 102.6 C-8.9 103.0 -6.3 80.4 15.0 85.8 L20.8 87.3 L19.0 102.5 Z"/><path d="M143.7 81.3 C160.9 75.7 164.9 96.8 146.9 97.9 L140.9 98.3 L138.0 83.1 Z"/><path d="M146.9 97.9 C168.0 96.7 164.0 123.0 144.5 114.6 L139.0 112.2 L140.9 98.3 Z"/><path d="M144.5 114.6 C162.9 122.5 145.0 143.9 133.7 127.4 L130.3 122.4 L139.0 112.2 Z"/></g>
+              <g data-sp="frog" class="frog-spots">
+                <ellipse cx="74" cy="56" rx="4.6" ry="3.2" transform="rotate(-12 74 56)"/>
+                <ellipse cx="90" cy="52" rx="3.6" ry="2.6" transform="rotate(10 90 52)"/>
+                <ellipse cx="80" cy="66" rx="3" ry="2.2"/>
+                <ellipse cx="118" cy="66" rx="3.6" ry="2.6" transform="rotate(25 118 66)"/>
+                <ellipse cx="40" cy="70" rx="3.2" ry="2.4" transform="rotate(-20 40 70)"/>
+              </g>
+              <g data-sk="dartfrog" class="dart">
+                <path class="dart-red" d="M13.8 104 C13.2 71 35 39.2 80 39.2 C125 39.2 146.8 71 146.2 104 C140 97 134 88 124 83 C112 77 98 78 80 79 C62 78 48 77 36 83 C26 88 20 97 14.5 104 Z"/>
+                <g class="dart-black">
+                <ellipse cx="50" cy="56" rx="6" ry="3.6" transform="rotate(-25 50 56)"/><ellipse cx="72" cy="48" rx="4" ry="2.8"/><ellipse cx="96" cy="50" rx="5" ry="3.2" transform="rotate(10 96 50)"/><ellipse cx="116" cy="60" rx="5.4" ry="3.4" transform="rotate(25 116 60)"/>
+                <ellipse cx="38" cy="72" rx="3.6" ry="2.6" transform="rotate(-30 38 72)"/><ellipse cx="80" cy="64" rx="3.4" ry="2.4"/><ellipse cx="104" cy="72" rx="3.2" ry="2.4"/><ellipse cx="124" cy="76" rx="3" ry="2.2" transform="rotate(20 124 76)"/><ellipse cx="62" cy="68" rx="2.6" ry="2"/><ellipse cx="88" cy="44" rx="2.2" ry="1.8"/><ellipse cx="136" cy="116" rx="2.6" ry="2"/><ellipse cx="24" cy="122" rx="2.4" ry="1.9"/></g>
+              </g>
+              <g data-sk="toad" class="toad-warts"><ellipse class="toad-gland" cx="39" cy="73" rx="13" ry="6" transform="rotate(-28 39 73)"/><ellipse class="toad-gland" cx="123" cy="61" rx="8" ry="4.4" transform="rotate(22 123 61)"/><circle class="wart" cx="61" cy="51" r="3.4"/><circle class="wart-hi" cx="60.1" cy="50.0" r="1.7"/><circle class="wart" cx="69" cy="45" r="2"/><circle class="wart-hi" cx="68.5" cy="44.4" r="1.0"/><circle class="wart" cx="55" cy="61" r="2.4"/><circle class="wart-hi" cx="54.4" cy="60.3" r="1.2"/><circle class="wart" cx="76" cy="57" r="1.5"/><circle class="wart-hi" cx="75.6" cy="56.5" r="0.8"/><circle class="wart" cx="91" cy="48" r="2.6"/><circle class="wart-hi" cx="90.3" cy="47.2" r="1.3"/><circle class="wart" cx="101" cy="55" r="1.6"/><circle class="wart-hi" cx="100.6" cy="54.5" r="0.8"/><circle class="wart" cx="109" cy="71" r="3.6"/><circle class="wart-hi" cx="108.1" cy="69.9" r="1.8"/><circle class="wart" cx="122" cy="50" r="1.8"/><circle class="wart-hi" cx="121.5" cy="49.5" r="0.9"/><circle class="wart" cx="127" cy="77" r="2.2"/><circle class="wart-hi" cx="126.5" cy="76.3" r="1.1"/><circle class="wart" cx="133" cy="93" r="3"/><circle class="wart-hi" cx="132.2" cy="92.1" r="1.5"/><circle class="wart" cx="30" cy="100" r="2.2"/><circle class="wart-hi" cx="29.4" cy="99.3" r="1.1"/><circle class="wart" cx="58" cy="121" r="3.2"/><circle class="wart-hi" cx="57.2" cy="120.0" r="1.6"/><circle class="wart" cx="106" cy="125" r="2.4"/><circle class="wart-hi" cx="105.4" cy="124.3" r="1.2"/><circle class="wart" cx="44" cy="88" r="1.6"/><circle class="wart-hi" cx="43.6" cy="87.5" r="0.8"/></g>
+              <g data-sp="hedgehog" class="hog-cap">
+                <g class="hog-blend"><path d="M13.3 95.6 Q0.0 83.8 15.4 84.3 L20.2 85.7 L18.3 96.1 Z"/><path d="M15.4 84.3 Q5.1 70.6 19.4 73.6 L23.9 75.7 L20.2 85.7 Z"/><path d="M19.4 73.6 Q10.3 57.4 25.3 63.7 L29.3 66.6 L23.9 75.7 Z"/><path d="M25.3 63.7 Q20.4 47.1 32.9 55.1 L36.3 58.8 L29.3 66.6 Z"/><path d="M32.9 55.1 Q31.5 38.3 42.0 48.1 L44.7 52.4 L36.3 58.8 Z"/><path d="M42.0 48.1 Q43.0 29.6 52.3 43.0 L54.1 47.6 L44.7 52.4 Z"/><path d="M52.3 43.0 Q55.5 22.1 63.3 39.7 L64.3 44.6 L54.1 47.6 Z"/><path d="M63.3 39.7 Q69.9 20.3 74.7 38.2 L75.0 43.2 L64.3 44.6 Z"/><path d="M74.7 38.2 Q84.0 20.0 86.2 38.2 L85.8 43.2 L75.0 43.2 Z"/><path d="M86.2 38.2 Q97.4 24.6 97.5 39.9 L96.4 44.7 L85.8 43.2 Z"/><path d="M97.5 39.9 Q111.3 26.4 108.5 43.3 L106.6 47.9 L96.4 44.7 Z"/><path d="M108.5 43.3 Q123.7 33.8 118.7 48.6 L116.0 52.8 L106.6 47.9 Z"/><path d="M118.7 48.6 Q135.0 42.7 127.7 55.7 L124.2 59.3 L116.0 52.8 Z"/><path d="M127.7 55.7 Q144.6 53.2 135.2 64.4 L131.1 67.3 L124.2 59.3 Z"/><path d="M135.2 64.4 Q152.8 64.8 141.0 74.3 L136.4 76.4 L131.1 67.3 Z"/><path d="M141.0 74.3 Q162.1 76.5 144.8 85.1 L140.0 86.4 L136.4 76.4 Z"/><path d="M144.8 85.1 Q164.7 91.0 146.8 96.4 L141.8 96.9 L140.0 86.4 Z"/></g>
+                <path class="hog-fill" d="M13 102 C13 70 36 38 80 38 C124 38 147 70 147 102 C145 84 118 66 80 68 C42 66 15 84 13 102 Z"/>
+                <path class="hog-edge" d="M147 102 C145 84 118 66 80 68 C42 66 15 84 13 102"/>
+                <!-- darker dashes and a few pale flecks on the spines, like a hedgehog print -->
+                <path class="hog-dash" d="M36 70 l4 3 M44 61 l5 2 M57 51 l5 1 M71 45 l5 .6 M86 47 l5 -.8 M100 54 l4 -2 M117 66 l4 -3 M66 61 l4 1 M89 61 l4 -1 M78 57 l4 0"/><path class="hog-fleck" d="M61 57 l2 .6 M95 50 l2 -.6"/>
+                <g class="ear-g ear-l">
+                  <path class="ear" d="M30 67 A10.8 10.8 0 0 1 50 59 Z"/>
+                  <path class="ear-in" d="M33.5 65.2 A7 7 0 0 1 46.5 60 Z"/>
+                </g>
+                <g class="ear-g ear-r">
+                  <path class="ear" d="M130 67 A10.8 10.8 0 0 0 110 59 Z"/>
+                  <path class="ear-in" d="M126.5 65.2 A7 7 0 0 0 113.5 60 Z"/>
+                </g>
+              </g>
+
+              <!-- skins: marks and parts drawn on the body -->
+              <g data-sk="strawberry" class="sb">
+                <g class="sb-pits"><ellipse cx="46.5" cy="58.7" rx="2.7" ry="3.4" transform="rotate(-10 46.5 60.5)"/><ellipse cx="59.5" cy="58.7" rx="2.7" ry="3.4" transform="rotate(-6 59.5 60.5)"/><ellipse cx="72.5" cy="58.7" rx="2.7" ry="3.4" transform="rotate(-2 72.5 60.5)"/><ellipse cx="85.5" cy="58.7" rx="2.7" ry="3.4" transform="rotate(2 85.5 60.5)"/><ellipse cx="98.5" cy="58.7" rx="2.7" ry="3.4" transform="rotate(6 98.5 60.5)"/><ellipse cx="111.5" cy="58.7" rx="2.7" ry="3.4" transform="rotate(9 111.5 60.5)"/><ellipse cx="40.0" cy="69.2" rx="2.7" ry="3.4" transform="rotate(-12 40.0 71.0)"/><ellipse cx="53.0" cy="69.2" rx="2.7" ry="3.4" transform="rotate(-8 53.0 71.0)"/><ellipse cx="66.0" cy="69.2" rx="2.7" ry="3.4" transform="rotate(-4 66.0 71.0)"/><ellipse cx="79.0" cy="69.2" rx="2.7" ry="3.4" transform="rotate(0 79.0 71.0)"/><ellipse cx="92.0" cy="69.2" rx="2.7" ry="3.4" transform="rotate(4 92.0 71.0)"/><ellipse cx="105.0" cy="69.2" rx="2.7" ry="3.4" transform="rotate(8 105.0 71.0)"/><ellipse cx="118.0" cy="69.2" rx="2.7" ry="3.4" transform="rotate(11 118.0 71.0)"/><ellipse cx="33.5" cy="79.7" rx="2.7" ry="3.4" transform="rotate(-14 33.5 81.5)"/><ellipse cx="46.5" cy="79.7" rx="2.7" ry="3.4" transform="rotate(-10 46.5 81.5)"/><ellipse cx="59.5" cy="79.7" rx="2.7" ry="3.4" transform="rotate(-6 59.5 81.5)"/><ellipse cx="72.5" cy="79.7" rx="2.7" ry="3.4" transform="rotate(-2 72.5 81.5)"/><ellipse cx="85.5" cy="79.7" rx="2.7" ry="3.4" transform="rotate(2 85.5 81.5)"/><ellipse cx="98.5" cy="79.7" rx="2.7" ry="3.4" transform="rotate(6 98.5 81.5)"/><ellipse cx="111.5" cy="79.7" rx="2.7" ry="3.4" transform="rotate(9 111.5 81.5)"/><ellipse cx="124.5" cy="79.7" rx="2.7" ry="3.4" transform="rotate(13 124.5 81.5)"/><ellipse cx="27.0" cy="90.2" rx="2.7" ry="3.4" transform="rotate(-16 27.0 92.0)"/><ellipse cx="40.0" cy="90.2" rx="2.7" ry="3.4" transform="rotate(-12 40.0 92.0)"/><ellipse cx="118.0" cy="90.2" rx="2.7" ry="3.4" transform="rotate(11 118.0 92.0)"/><ellipse cx="131.0" cy="90.2" rx="2.7" ry="3.4" transform="rotate(15 131.0 92.0)"/><ellipse cx="33.5" cy="100.7" rx="2.7" ry="3.4" transform="rotate(-14 33.5 102.5)"/><ellipse cx="124.5" cy="100.7" rx="2.7" ry="3.4" transform="rotate(13 124.5 102.5)"/><ellipse cx="40.0" cy="111.2" rx="2.7" ry="3.4" transform="rotate(-12 40.0 113.0)"/><ellipse cx="53.0" cy="111.2" rx="2.7" ry="3.4" transform="rotate(-8 53.0 113.0)"/><ellipse cx="105.0" cy="111.2" rx="2.7" ry="3.4" transform="rotate(8 105.0 113.0)"/><ellipse cx="118.0" cy="111.2" rx="2.7" ry="3.4" transform="rotate(11 118.0 113.0)"/><ellipse cx="46.5" cy="121.7" rx="2.7" ry="3.4" transform="rotate(-10 46.5 123.5)"/><ellipse cx="59.5" cy="121.7" rx="2.7" ry="3.4" transform="rotate(-6 59.5 123.5)"/><ellipse cx="72.5" cy="121.7" rx="2.7" ry="3.4" transform="rotate(-2 72.5 123.5)"/><ellipse cx="85.5" cy="121.7" rx="2.7" ry="3.4" transform="rotate(2 85.5 123.5)"/><ellipse cx="98.5" cy="121.7" rx="2.7" ry="3.4" transform="rotate(6 98.5 123.5)"/><ellipse cx="111.5" cy="121.7" rx="2.7" ry="3.4" transform="rotate(9 111.5 123.5)"/></g><g class="sb-seeds"><path transform="translate(46.5 60.5) rotate(-10) scale(.9)" d="M0 3 C-1.3 1.6 -2.1 -.4 -1.6 -1.9 C-1 -3.1 1 -3.1 1.6 -1.9 C2.1 -.4 1.3 1.6 0 3 Z"/><path transform="translate(59.5 60.5) rotate(-6) scale(.9)" d="M0 3 C-1.3 1.6 -2.1 -.4 -1.6 -1.9 C-1 -3.1 1 -3.1 1.6 -1.9 C2.1 -.4 1.3 1.6 0 3 Z"/><path transform="translate(72.5 60.5) rotate(-2) scale(.9)" d="M0 3 C-1.3 1.6 -2.1 -.4 -1.6 -1.9 C-1 -3.1 1 -3.1 1.6 -1.9 C2.1 -.4 1.3 1.6 0 3 Z"/><path transform="translate(85.5 60.5) rotate(2) scale(.9)" d="M0 3 C-1.3 1.6 -2.1 -.4 -1.6 -1.9 C-1 -3.1 1 -3.1 1.6 -1.9 C2.1 -.4 1.3 1.6 0 3 Z"/><path transform="translate(98.5 60.5) rotate(6) scale(.9)" d="M0 3 C-1.3 1.6 -2.1 -.4 -1.6 -1.9 C-1 -3.1 1 -3.1 1.6 -1.9 C2.1 -.4 1.3 1.6 0 3 Z"/><path transform="translate(111.5 60.5) rotate(9) scale(.9)" d="M0 3 C-1.3 1.6 -2.1 -.4 -1.6 -1.9 C-1 -3.1 1 -3.1 1.6 -1.9 C2.1 -.4 1.3 1.6 0 3 Z"/><path transform="translate(40.0 71.0) rotate(-12) scale(.9)" d="M0 3 C-1.3 1.6 -2.1 -.4 -1.6 -1.9 C-1 -3.1 1 -3.1 1.6 -1.9 C2.1 -.4 1.3 1.6 0 3 Z"/><path transform="translate(53.0 71.0) rotate(-8) scale(.9)" d="M0 3 C-1.3 1.6 -2.1 -.4 -1.6 -1.9 C-1 -3.1 1 -3.1 1.6 -1.9 C2.1 -.4 1.3 1.6 0 3 Z"/><path transform="translate(66.0 71.0) rotate(-4) scale(.9)" d="M0 3 C-1.3 1.6 -2.1 -.4 -1.6 -1.9 C-1 -3.1 1 -3.1 1.6 -1.9 C2.1 -.4 1.3 1.6 0 3 Z"/><path transform="translate(79.0 71.0) rotate(0) scale(.9)" d="M0 3 C-1.3 1.6 -2.1 -.4 -1.6 -1.9 C-1 -3.1 1 -3.1 1.6 -1.9 C2.1 -.4 1.3 1.6 0 3 Z"/><path transform="translate(92.0 71.0) rotate(4) scale(.9)" d="M0 3 C-1.3 1.6 -2.1 -.4 -1.6 -1.9 C-1 -3.1 1 -3.1 1.6 -1.9 C2.1 -.4 1.3 1.6 0 3 Z"/><path transform="translate(105.0 71.0) rotate(8) scale(.9)" d="M0 3 C-1.3 1.6 -2.1 -.4 -1.6 -1.9 C-1 -3.1 1 -3.1 1.6 -1.9 C2.1 -.4 1.3 1.6 0 3 Z"/><path transform="translate(118.0 71.0) rotate(11) scale(.9)" d="M0 3 C-1.3 1.6 -2.1 -.4 -1.6 -1.9 C-1 -3.1 1 -3.1 1.6 -1.9 C2.1 -.4 1.3 1.6 0 3 Z"/><path transform="translate(33.5 81.5) rotate(-14) scale(.9)" d="M0 3 C-1.3 1.6 -2.1 -.4 -1.6 -1.9 C-1 -3.1 1 -3.1 1.6 -1.9 C2.1 -.4 1.3 1.6 0 3 Z"/><path transform="translate(46.5 81.5) rotate(-10) scale(.9)" d="M0 3 C-1.3 1.6 -2.1 -.4 -1.6 -1.9 C-1 -3.1 1 -3.1 1.6 -1.9 C2.1 -.4 1.3 1.6 0 3 Z"/><path transform="translate(59.5 81.5) rotate(-6) scale(.9)" d="M0 3 C-1.3 1.6 -2.1 -.4 -1.6 -1.9 C-1 -3.1 1 -3.1 1.6 -1.9 C2.1 -.4 1.3 1.6 0 3 Z"/><path transform="translate(72.5 81.5) rotate(-2) scale(.9)" d="M0 3 C-1.3 1.6 -2.1 -.4 -1.6 -1.9 C-1 -3.1 1 -3.1 1.6 -1.9 C2.1 -.4 1.3 1.6 0 3 Z"/><path transform="translate(85.5 81.5) rotate(2) scale(.9)" d="M0 3 C-1.3 1.6 -2.1 -.4 -1.6 -1.9 C-1 -3.1 1 -3.1 1.6 -1.9 C2.1 -.4 1.3 1.6 0 3 Z"/><path transform="translate(98.5 81.5) rotate(6) scale(.9)" d="M0 3 C-1.3 1.6 -2.1 -.4 -1.6 -1.9 C-1 -3.1 1 -3.1 1.6 -1.9 C2.1 -.4 1.3 1.6 0 3 Z"/><path transform="translate(111.5 81.5) rotate(9) scale(.9)" d="M0 3 C-1.3 1.6 -2.1 -.4 -1.6 -1.9 C-1 -3.1 1 -3.1 1.6 -1.9 C2.1 -.4 1.3 1.6 0 3 Z"/><path transform="translate(124.5 81.5) rotate(13) scale(.9)" d="M0 3 C-1.3 1.6 -2.1 -.4 -1.6 -1.9 C-1 -3.1 1 -3.1 1.6 -1.9 C2.1 -.4 1.3 1.6 0 3 Z"/><path transform="translate(27.0 92.0) rotate(-16) scale(.9)" d="M0 3 C-1.3 1.6 -2.1 -.4 -1.6 -1.9 C-1 -3.1 1 -3.1 1.6 -1.9 C2.1 -.4 1.3 1.6 0 3 Z"/><path transform="translate(40.0 92.0) rotate(-12) scale(.9)" d="M0 3 C-1.3 1.6 -2.1 -.4 -1.6 -1.9 C-1 -3.1 1 -3.1 1.6 -1.9 C2.1 -.4 1.3 1.6 0 3 Z"/><path transform="translate(118.0 92.0) rotate(11) scale(.9)" d="M0 3 C-1.3 1.6 -2.1 -.4 -1.6 -1.9 C-1 -3.1 1 -3.1 1.6 -1.9 C2.1 -.4 1.3 1.6 0 3 Z"/><path transform="translate(131.0 92.0) rotate(15) scale(.9)" d="M0 3 C-1.3 1.6 -2.1 -.4 -1.6 -1.9 C-1 -3.1 1 -3.1 1.6 -1.9 C2.1 -.4 1.3 1.6 0 3 Z"/><path transform="translate(33.5 102.5) rotate(-14) scale(.9)" d="M0 3 C-1.3 1.6 -2.1 -.4 -1.6 -1.9 C-1 -3.1 1 -3.1 1.6 -1.9 C2.1 -.4 1.3 1.6 0 3 Z"/><path transform="translate(124.5 102.5) rotate(13) scale(.9)" d="M0 3 C-1.3 1.6 -2.1 -.4 -1.6 -1.9 C-1 -3.1 1 -3.1 1.6 -1.9 C2.1 -.4 1.3 1.6 0 3 Z"/><path transform="translate(40.0 113.0) rotate(-12) scale(.9)" d="M0 3 C-1.3 1.6 -2.1 -.4 -1.6 -1.9 C-1 -3.1 1 -3.1 1.6 -1.9 C2.1 -.4 1.3 1.6 0 3 Z"/><path transform="translate(53.0 113.0) rotate(-8) scale(.9)" d="M0 3 C-1.3 1.6 -2.1 -.4 -1.6 -1.9 C-1 -3.1 1 -3.1 1.6 -1.9 C2.1 -.4 1.3 1.6 0 3 Z"/><path transform="translate(105.0 113.0) rotate(8) scale(.9)" d="M0 3 C-1.3 1.6 -2.1 -.4 -1.6 -1.9 C-1 -3.1 1 -3.1 1.6 -1.9 C2.1 -.4 1.3 1.6 0 3 Z"/><path transform="translate(118.0 113.0) rotate(11) scale(.9)" d="M0 3 C-1.3 1.6 -2.1 -.4 -1.6 -1.9 C-1 -3.1 1 -3.1 1.6 -1.9 C2.1 -.4 1.3 1.6 0 3 Z"/><path transform="translate(46.5 123.5) rotate(-10) scale(.9)" d="M0 3 C-1.3 1.6 -2.1 -.4 -1.6 -1.9 C-1 -3.1 1 -3.1 1.6 -1.9 C2.1 -.4 1.3 1.6 0 3 Z"/><path transform="translate(59.5 123.5) rotate(-6) scale(.9)" d="M0 3 C-1.3 1.6 -2.1 -.4 -1.6 -1.9 C-1 -3.1 1 -3.1 1.6 -1.9 C2.1 -.4 1.3 1.6 0 3 Z"/><path transform="translate(72.5 123.5) rotate(-2) scale(.9)" d="M0 3 C-1.3 1.6 -2.1 -.4 -1.6 -1.9 C-1 -3.1 1 -3.1 1.6 -1.9 C2.1 -.4 1.3 1.6 0 3 Z"/><path transform="translate(85.5 123.5) rotate(2) scale(.9)" d="M0 3 C-1.3 1.6 -2.1 -.4 -1.6 -1.9 C-1 -3.1 1 -3.1 1.6 -1.9 C2.1 -.4 1.3 1.6 0 3 Z"/><path transform="translate(98.5 123.5) rotate(6) scale(.9)" d="M0 3 C-1.3 1.6 -2.1 -.4 -1.6 -1.9 C-1 -3.1 1 -3.1 1.6 -1.9 C2.1 -.4 1.3 1.6 0 3 Z"/><path transform="translate(111.5 123.5) rotate(9) scale(.9)" d="M0 3 C-1.3 1.6 -2.1 -.4 -1.6 -1.9 C-1 -3.1 1 -3.1 1.6 -1.9 C2.1 -.4 1.3 1.6 0 3 Z"/></g>
+                <path class="sb-leaf" d="M80 41 C64 41 54 36 55 29 C64 28 75 33 80 41 Z"/>
+                <path class="sb-leaf" d="M80 41 C96 41 106 36 105 29 C96 28 85 33 80 41 Z"/>
+                <path class="sb-leaf" d="M80 40 C71 34 68 27 72 23 C78 25 81 32 80 40 Z"/>
+                <path class="sb-leaf" d="M80 40 C89 34 92 27 88 23 C82 25 79 32 80 40 Z"/>
+                <path class="sb-leaf" d="M80 41 C75 32 76 22 81 19 C86 22 85 32 80 41 Z"/>
+                </g>
+              <g data-sk="chocolate" class="choc"><g transform="translate(40 58) rotate(-20) scale(1.1)"><rect x="-3.6" y="-3.6" width="7.2" height="7.2" rx="1"/><rect class="chunk-hi" x="-2.4" y="-2.4" width="3.6" height="3.6" rx=".6"/></g><g transform="translate(68 46) rotate(25) scale(0.8)"><rect x="-3.6" y="-3.6" width="7.2" height="7.2" rx="1"/><rect class="chunk-hi" x="-2.4" y="-2.4" width="3.6" height="3.6" rx=".6"/></g><g transform="translate(116 50) rotate(35) scale(0.95)"><rect x="-3.6" y="-3.6" width="7.2" height="7.2" rx="1"/><rect class="chunk-hi" x="-2.4" y="-2.4" width="3.6" height="3.6" rx=".6"/></g><g transform="translate(130 72) rotate(-25) scale(1.15)"><rect x="-3.6" y="-3.6" width="7.2" height="7.2" rx="1"/><rect class="chunk-hi" x="-2.4" y="-2.4" width="3.6" height="3.6" rx=".6"/></g><g transform="translate(22 86) rotate(15) scale(0.85)"><rect x="-3.6" y="-3.6" width="7.2" height="7.2" rx="1"/><rect class="chunk-hi" x="-2.4" y="-2.4" width="3.6" height="3.6" rx=".6"/></g><g transform="translate(52 124) rotate(-32) scale(1.0)"><rect x="-3.6" y="-3.6" width="7.2" height="7.2" rx="1"/><rect class="chunk-hi" x="-2.4" y="-2.4" width="3.6" height="3.6" rx=".6"/></g><g transform="translate(94 126) rotate(28) scale(1.1)"><rect x="-3.6" y="-3.6" width="7.2" height="7.2" rx="1"/><rect class="chunk-hi" x="-2.4" y="-2.4" width="3.6" height="3.6" rx=".6"/></g><g transform="translate(101 66) rotate(8) scale(0.8)"><rect x="-3.6" y="-3.6" width="7.2" height="7.2" rx="1"/><rect class="chunk-hi" x="-2.4" y="-2.4" width="3.6" height="3.6" rx=".6"/></g></g>
+              <g data-sk="taro" class="taro"><circle cx="81" cy="66" r="1.3"/><circle cx="50" cy="66" r="1.4"/><circle cx="136" cy="108" r="2.6"/><circle cx="65" cy="59" r="2.5"/><circle cx="75" cy="92" r="1.8"/><circle cx="47" cy="127" r="2.6"/><circle cx="38" cy="86" r="2.5"/><circle cx="123" cy="80" r="1.8"/><circle cx="75" cy="78" r="2.8"/><circle cx="135" cy="88" r="2.0"/><circle cx="63" cy="124" r="1.8"/><circle cx="91" cy="72" r="1.5"/><circle cx="111" cy="77" r="2.3"/><circle cx="100" cy="121" r="2.7"/><circle cx="32" cy="74" r="2.6"/></g>
+              <g data-sk="kiwi" class="kiwi-fuzz"><path d="M46.2 130.9 l4.3 -4.2"/><path d="M101.2 54.8 l5.2 -3.0"/><path d="M72.2 90.4 l4.8 -3.6"/><path d="M50.9 78.8 l4.0 4.5"/><path d="M63.3 57.2 l5.2 -2.9"/><path d="M91.1 77.4 l5.7 2.0"/><path d="M58.3 105.5 l6.0 -0.0"/><path d="M94.4 123.0 l5.9 1.0"/><path d="M129.3 89.8 l4.8 -3.6"/><path d="M103.9 123.1 l5.4 -2.6"/><path d="M61.2 123.6 l4.3 -4.2"/><path d="M100.3 104.0 l3.5 4.9"/><path d="M117.4 91.1 l4.8 -3.6"/><path d="M36.4 91.4 l6.0 0.1"/><path d="M46.0 69.5 l3.1 -5.1"/><path d="M58.9 69.4 l5.9 -1.0"/><path d="M122.5 61.7 l5.9 -1.3"/><path d="M109.3 74.4 l3.1 -5.1"/><path d="M132.4 108.7 l3.1 5.1"/><path d="M87.6 58.8 l3.3 5.0"/><path d="M74.8 61.4 l4.2 -4.3"/><path d="M21.7 77.7 l5.9 -0.8"/><path d="M101.3 64.9 l5.1 -3.2"/><path d="M94.2 45.9 l5.8 1.4"/><path d="M82.6 130.8 l5.8 -1.6"/><path d="M50.5 50.5 l5.3 2.8"/></g>
+              <g data-sk="dutch" class="dutch">
+                <path d="M14.5 103 C14 72 36 40 77 40 C76 54 77 64 75 76 C73 87 69 95 65 101 C59 110 51 113 43 113 C28 113 15 111 14.5 103 Z"/>
+                <path d="M145.5 103 C146 72 124 40 83 40 C84 54 83 64 85 76 C87 87 91 95 95 101 C101 110 109 113 117 113 C132 113 145 111 145.5 103 Z"/>
+              </g>
+              <g data-sk="pomeranian blackpom" class="pom-face">
+                <ellipse class="pom-muzzle" cx="80" cy="103" rx="30" ry="17"/>
+                <path class="pom-chest" transform="translate(80 128) scale(.9 .82) translate(-80 -128)" d="M44 122 C40 118 44 112 50 114 C52 108 60 108 64 112 C68 107 76 107 80 111 C84 107 92 107 96 112 C100 108 108 108 110 114 C116 112 120 118 116 122 C112 130 96 134 80 134 C64 134 48 130 44 122 Z"/>
+              </g>
+              <g data-sp="kitty" class="tabby">
+                <ellipse class="tabby-muzzle" cx="80" cy="104" rx="22" ry="13"/>
+                <g class="tabby-stripes" clip-path="url(#bodyClip)"><path transform="translate(6 77) rotate(6)" d="M0 -3.8 C10.8 -3.8 19.2 -1.7 24 0 C19.2 1.7 10.8 3.8 0 3.8 C-2.7 3.8 -2.7 -3.8 0 -3.8 Z"/><path transform="translate(154 77) rotate(174)" d="M0 -3.8 C10.8 -3.8 19.2 -1.7 24 0 C19.2 1.7 10.8 3.8 0 3.8 C-2.7 3.8 -2.7 -3.8 0 -3.8 Z"/><path transform="translate(6 90) rotate(-2)" d="M0 -3.2 C9.0 -3.2 16.0 -1.4 20 0 C16.0 1.4 9.0 3.2 0 3.2 C-2.2 3.2 -2.2 -3.2 0 -3.2 Z"/><path transform="translate(154 90) rotate(182)" d="M0 -3.2 C9.0 -3.2 16.0 -1.4 20 0 C16.0 1.4 9.0 3.2 0 3.2 C-2.2 3.2 -2.2 -3.2 0 -3.2 Z"/><path transform="translate(12 120) rotate(-22)" d="M0 -3.4 C9.0 -3.4 16.0 -1.5 20 0 C16.0 1.5 9.0 3.4 0 3.4 C-2.4 3.4 -2.4 -3.4 0 -3.4 Z"/><path transform="translate(148 120) rotate(202)" d="M0 -3.4 C9.0 -3.4 16.0 -1.5 20 0 C16.0 1.5 9.0 3.4 0 3.4 C-2.4 3.4 -2.4 -3.4 0 -3.4 Z"/><path transform="translate(80 30) rotate(90)" d="M0 -3.2 C10.8 -3.2 19.2 -1.4 24 0 C19.2 1.4 10.8 3.2 0 3.2 C-2.2 3.2 -2.2 -3.2 0 -3.2 Z"/><path transform="translate(68 32) rotate(100)" d="M0 -2.8 C9.0 -2.8 16.0 -1.3 20 0 C16.0 1.3 9.0 2.8 0 2.8 C-2.0 2.8 -2.0 -2.8 0 -2.8 Z"/><path transform="translate(92 32) rotate(80)" d="M0 -2.8 C9.0 -2.8 16.0 -1.3 20 0 C16.0 1.3 9.0 2.8 0 2.8 C-2.0 2.8 -2.0 -2.8 0 -2.8 Z"/></g>
+                <path class="skin-outline" d="M80 139 C41 139 13 129 13 102 C13 70 36 38 80 38 C124 38 147 70 147 102 C147 129 119 139 80 139 Z"/>
+              </g>
+              <g data-sk="calico" class="calico">
+                <path class="calico-orange" d="M28 78 C26 62 40 48 60 45 C60 58 56 70 47 78 C40 84 30 86 28 78 Z"/>
+                <path class="calico-black" d="M102 50 C114 50 126 58 132 72 C134 80 128 84 122 80 C116 74 108 72 104 64 C100 58 97 51 102 50 Z"/>
+                <path class="calico-orange" d="M94 124 C99 118 112 117 122 119 C130 120 134 124 130 129 C125 133 112 134 102 133 C94 132 90 128 94 124 Z"/>
+                <path class="skin-outline" d="M80 139 C41 139 13 129 13 102 C13 70 36 38 80 38 C124 38 147 70 147 102 C147 129 119 139 80 139 Z"/>
+              </g>
+              <g data-sk="dirty" class="dirty"><path d="M42.2 84.0 C42.9 86.0 45.5 89.7 44.5 91.5 C43.5 93.3 38.8 95.0 36.3 94.9 C33.8 94.8 31.5 92.0 29.4 90.7 C27.3 89.4 24.6 88.8 23.7 87.2 C22.8 85.6 23.3 82.9 24.0 80.9 C24.7 78.9 25.9 76.4 27.9 75.0 C30.0 73.7 34.3 72.2 36.3 72.9 C38.3 73.7 39.0 77.9 40.0 79.7 C41.0 81.5 41.4 82.0 42.2 84.0 Z"/><path d="M131.8 114.0 C132.2 116.6 130.5 121.5 128.1 122.6 C125.7 123.8 120.2 121.3 117.4 120.9 C114.7 120.5 114.3 120.7 111.7 120.3 C109.2 119.8 103.6 120.0 102.1 118.3 C100.6 116.6 101.7 112.3 102.9 109.9 C104.1 107.6 106.8 104.9 109.3 104.1 C111.8 103.3 115.0 104.8 117.8 105.3 C120.6 105.8 123.5 105.5 125.9 107.0 C128.2 108.4 131.5 111.4 131.8 114.0 Z"/><path d="M106.5 56.0 C106.7 57.4 107.2 59.5 106.3 60.5 C105.4 61.5 103.0 61.8 101.3 62.1 C99.5 62.4 97.3 62.9 95.7 62.3 C94.1 61.7 92.0 59.9 91.8 58.5 C91.7 57.2 93.8 55.5 94.8 54.4 C95.7 53.3 96.2 53.2 97.4 52.1 C98.5 51.0 100.4 47.7 101.7 47.7 C103.0 47.8 104.3 51.0 105.1 52.4 C105.9 53.7 106.3 54.6 106.5 56.0 Z"/><path d="M58.3 120.0 C57.8 121.4 57.0 122.0 56.2 123.0 C55.3 124.0 54.5 125.9 53.3 126.1 C52.1 126.4 50.1 125.0 49.1 124.3 C48.1 123.5 47.8 122.6 47.1 121.5 C46.4 120.5 45.1 119.4 45.1 117.9 C45.0 116.3 45.2 113.2 46.7 112.1 C48.1 111.1 51.6 111.3 53.7 111.7 C55.9 112.1 58.7 113.3 59.4 114.7 C60.2 116.1 58.9 118.6 58.3 120.0 Z"/><path d="M74.9 52.0 C75.2 52.9 74.4 54.8 73.3 55.6 C72.3 56.3 70.2 56.8 68.8 56.6 C67.3 56.4 65.1 55.3 64.5 54.2 C63.9 53.1 64.5 51.2 65.2 50.0 C65.9 48.8 67.6 47.0 68.7 47.0 C69.8 47.0 70.7 49.3 71.7 50.1 C72.8 51.0 74.7 51.1 74.9 52.0 Z"/><circle cx="48" cy="96" r="2"/><circle cx="24" cy="102" r="1.6"/><circle cx="128" cy="100" r="2.2"/><circle cx="132" cy="126" r="1.5"/><circle cx="112" cy="50" r="1.8"/><circle cx="86" cy="48" r="1.4"/><circle cx="66" cy="122" r="1.6"/></g>
+              <g data-sk="floppybunny">
+                <g class="ear-g ear-l">
+                  <path class="ear" d="M44 54 C26 50 14 74 18 94 C21 104 33 102 37 91 C41 79 45 67 53 59"/>
+                  <path class="ear-in" d="M31 68 C25 78 25 90 29 96 C33 93 37 85 39 77 Z"/>
+                </g>
+                <g class="ear-g ear-r">
+                  <path class="ear" d="M116 54 C134 50 146 74 142 94 C139 104 127 102 123 91 C119 79 115 67 107 59"/>
+                  <path class="ear-in" d="M129 68 C135 78 135 90 131 96 C127 93 123 85 121 77 Z"/>
+                </g>
+              </g>
+              <g data-sk="highland" class="hl-fringe">
+                <path d="M24 70 C20 56 34 40 52 38 C64 35 96 35 108 38 C126 40 140 56 136 70 C132 77 126 73 124 66 C121 75 114 77 111 66 C108 77 100 79 97 66 C94 77 86 79 83 66 C80 79 72 79 69 66 C66 77 58 77 55 66 C52 77 44 75 42 66 C38 75 30 77 24 70 Z"/>
+              </g>
+
+              <g data-sk="shiba" class="shiba">
+                <path class="urajiro" d="M44 100 C44 88 56 84 66 90 C72 93 76 96 80 96 C84 96 88 93 94 90 C104 84 116 88 116 100 C116 116 100 126 80 126 C60 126 44 116 44 100 Z"/>
+                <circle class="urajiro" cx="60" cy="79" r="3.6"/><circle class="urajiro" cx="100" cy="79" r="3.6"/>
+              </g>
+              <g data-sk="frenchie" class="frenchie">
+                <ellipse class="frenchie-muzzle" cx="80" cy="104" rx="17" ry="11"/>
+                <path class="frenchie-wrinkle" d="M71 70 q9 -5 18 0 M74 77 q6 -3 12 0"/>
+              </g>
+              <g data-sk="shepherd" class="shepherd">
+                <path class="shepherd-saddle" d="M16 88 C18 62 42 38 80 38 C118 38 142 62 144 88 C134 74 118 66 104 68 C96 70 88 76 80 84 C72 76 64 70 56 68 C42 66 26 74 16 88 Z"/>
+                <ellipse class="shepherd-cheek" cx="80" cy="106" rx="24" ry="14"/>
+                <path class="skin-outline" d="M80 139 C41 139 13 129 13 102 C13 70 36 38 80 38 C124 38 147 70 147 102 C147 129 119 139 80 139 Z"/>
+              </g>
+              <g data-sk="munchkin" class="munchkin">
+                <path class="munchkin-cap" d="M15 92 C16 62 42 38 80 38 C118 38 144 62 145 92 C136 80 124 74 112 74 C100 74 92 66 86 54 L80 46 L74 54 C68 66 60 74 48 74 C36 74 24 80 15 92 Z"/>
+                <path class="skin-outline" d="M80 139 C41 139 13 129 13 102 C13 70 36 38 80 38 C124 38 147 70 147 102 C147 129 119 139 80 139 Z"/>
+              </g>
+              <!-- Siamese: a dark seal-point mask round the nose and mouth -->
+              <g data-sk="siamese" class="siamese"><ellipse class="siamese-mask" cx="80" cy="99" rx="36" ry="27"/></g>
+              <g data-sk="ragdoll" class="ragdoll">
+                <path class="ragdoll-mask" d="M32 96 C28 80 40 64 56 62 C66 61 72 66 76 72 L80 78 L84 72 C88 66 94 61 104 62 C120 64 132 80 128 96 C124 106 110 108 100 102 C94 98 90 94 86 92 L80 96 L74 92 C70 94 66 98 60 102 C50 108 36 106 32 96 Z"/>
+              </g>
+              <!-- the old pigeon (kept in case the new one is not wanted): grey, a shiny neck band, small wing nubs -->
+              <g data-sk="oldpigeon" class="oldpigeon">
+                <path class="oldpigeon-sheen" clip-path="url(#bodyClip)" d="M-4 100 C34 124 126 124 164 100 L164 114 C126 138 34 138 -4 114 Z"/>
+                <path class="skin-outline" d="M80 139 C41 139 13 129 13 102 C13 70 36 38 80 38 C124 38 147 70 147 102 C147 129 119 139 80 139 Z"/>
+              </g>
+              <!-- the pigeon: lilac-grey, a faint pink chest, a shiny neck band right to the outline, orange eyes (see the pigeon rules in styles.css) -->
+              <g data-sk="pigeon" class="pigeon">
+                <rect class="pigeon-chest" x="0" y="108" width="160" height="40" clip-path="url(#bodyClip)"/>
+                <path class="pigeon-sheen" clip-path="url(#bodyClip)" d="M-4 100 C34 122 126 122 164 100 L164 118 C126 140 34 140 -4 118 Z"/>
+                <path class="skin-outline" d="M80 139 C41 139 13 129 13 102 C13 70 36 38 80 38 C124 38 147 70 147 102 C147 129 119 139 80 139 Z"/>
+              </g>
+
+              <g data-sk="potbelly" class="potbelly">
+                <ellipse class="pot-belly" cx="80" cy="121" rx="38" ry="15"/>
+                <path class="pot-wrinkle" d="M71 66 q9 -4 18 0 M74 72 q6 -3 12 0"/>
+                <!-- chubby jowls either side of the mouth -->
+                <ellipse class="pot-jowl" cx="55" cy="111" rx="14" ry="9.5"/><ellipse class="pot-jowl" cx="105" cy="111" rx="14" ry="9.5"/>
+                <path class="pot-jowl-line" d="M42 112 C44 121 56 124 66 117 M118 112 C116 121 104 124 94 117"/>
+              </g>
+
+
+              <g data-sk="himalayan" class="himalayan"><ellipse class="hima-nose" cx="80" cy="98.6" rx="6.8" ry="4.8"/></g>
+              <g data-sk="cairn" class="cairn">
+                <!-- a scruffy beard and bushy brows -->
+                <path class="cairn-beard" d="M52 100 C52 92 64 89 80 89 C96 89 108 92 108 100 C110 108 106 114 104 118 L100 114 L97 120 L92 115 L88 122 L84 116 L80 123 L76 116 L72 122 L68 115 L63 120 L60 114 L56 118 C54 114 50 108 52 100 Z"/>
+                <path class="cairn-brow" d="M50 82 L53 77 L56 80 L59 75 L62 79 L65 75 M110 82 L107 77 L104 80 L101 75 L98 79 L95 75"/>
+              </g>
+
+
+              <!-- species parts drawn on top of the body -->
+              <g data-sp="kitty" class="whiskers line">
+                <path d="M22 98 l-10 -2 M22 104 l-10 2 M138 98 l10 -2 M138 104 l10 2"/>
+              </g>
+              <g data-sp="puppy">
+                <g class="ear-g ear-l">
+                  <path class="ear" d="M42 52 C24 50 14 74 18 92 C21 102 32 100 36 90 C40 78 44 66 52 58"/>
+                </g>
+                <g class="ear-g ear-r">
+                  <path class="ear" d="M118 52 C136 50 146 74 142 92 C139 102 128 100 124 90 C120 78 116 66 108 58"/>
+                </g>
+                <ellipse class="spot" cx="102" cy="88" rx="11" ry="10"/>
+              </g>
+
+              <ellipse data-sp="hamster" class="belly" cx="80" cy="110" rx="50" ry="28"/>
+              <ellipse data-sp="mouse" class="belly mouse-belly" cx="80" cy="115" rx="40" ry="21"/>
+              <ellipse data-sp="monkey" class="belly monkey-belly" cx="80" cy="115" rx="40" ry="21"/>
+              <path data-sp="monkey" class="monkey-mask" d="M80 78 C70 62 46 66 46 90 C46 110 66 122 80 122 C94 122 114 110 114 90 C114 66 90 62 80 78 Z"/>
+              <g data-sp="dragon">
+                <path class="dragon-plate" d="M80 100 C58 100 44 112 46 126 C48 134 62 137 80 137 C98 137 112 134 114 126 C116 112 102 100 80 100 Z"/>
+                <path class="dragon-band" d="M56 112 Q80 120 104 112 M60 120 Q80 128 100 120 M66 128 Q80 134 94 128"/>
+                <ellipse class="dragon-muzzle" cx="80" cy="95" rx="13" ry="8.6"/>
+                <ellipse class="dragon-nostril" cx="75.6" cy="94" rx="1.7" ry="1.3"/>
+                <ellipse class="dragon-nostril" cx="84.4" cy="94" rx="1.7" ry="1.3"/>
+                <path class="dragon-tuft" d="M66 44 Q62 32 70 26 Q74 34 74 42 Z M74 42 Q74 24 80 16 Q86 24 86 42 Z M86 42 Q86 32 92 26 Q98 32 94 44 Z"/>
+                <circle class="dragon-dot" cx="40" cy="66" r="2.4"/><circle class="dragon-dot" cx="120" cy="66" r="2.4"/><circle class="dragon-dot" cx="50" cy="58" r="2.4"/><circle class="dragon-dot" cx="110" cy="58" r="2.4"/>
+              </g>
+              <ellipse data-sp="frog" class="belly frog-belly" cx="80" cy="114" rx="46" ry="24"/>
+              <ellipse data-sp="axolotl" class="belly axo-belly" cx="80" cy="114" rx="44" ry="23"/>
+              <g data-sk="longhair" class="lh-face"><ellipse class="lh-muzzle" cx="80" cy="105" rx="25" ry="14"/></g>
+              <path data-sk="penguin" class="belly" d="M80 58 C104 58 131 78 131 104 C131 126 110 135 80 135 C50 135 29 126 29 104 C29 78 56 58 80 58 Z"/>
+              <ellipse data-sk="penguin" class="belly belly-under" cx="80" cy="100" rx="42" ry="30"/>
+              <g data-sk="thrush" class="thrush" clip-path="url(#bodyClip)"><ellipse cx="80" cy="118" rx="41" ry="25" fill="#f6eddc"/><path d="M52 106.2 C53.65 107.7 53.5 109.5 52 109.65 C50.5 109.5 50.35 107.7 52 106.2Z" fill="#7a5a44"/><path d="M62 109.2 C63.65 110.7 63.5 112.5 62 112.65 C60.5 112.5 60.35 110.7 62 109.2Z" fill="#7a5a44"/><path d="M72 111.2 C73.65 112.7 73.5 114.5 72 114.65 C70.5 114.5 70.35 112.7 72 111.2Z" fill="#7a5a44"/><path d="M88 111.2 C89.65 112.7 89.5 114.5 88 114.65 C86.5 114.5 86.35 112.7 88 111.2Z" fill="#7a5a44"/><path d="M98 109.2 C99.65 110.7 99.5 112.5 98 112.65 C96.5 112.5 96.35 110.7 98 109.2Z" fill="#7a5a44"/><path d="M108 106.2 C109.65 107.7 109.5 109.5 108 109.65 C106.5 109.5 106.35 107.7 108 106.2Z" fill="#7a5a44"/><path d="M57 116.2 C58.65 117.7 58.5 119.5 57 119.65 C55.5 119.5 55.35 117.7 57 116.2Z" fill="#7a5a44"/><path d="M68 119.2 C69.65 120.7 69.5 122.5 68 122.65 C66.5 122.5 66.35 120.7 68 119.2Z" fill="#7a5a44"/><path d="M80 121.2 C81.65 122.7 81.5 124.5 80 124.65 C78.5 124.5 78.35 122.7 80 121.2Z" fill="#7a5a44"/><path d="M92 119.2 C93.65 120.7 93.5 122.5 92 122.65 C90.5 122.5 90.35 120.7 92 119.2Z" fill="#7a5a44"/><path d="M103 116.2 C104.65 117.7 104.5 119.5 103 119.65 C101.5 119.5 101.35 117.7 103 116.2Z" fill="#7a5a44"/><path d="M63 126.2 C64.65 127.7 64.5 129.5 63 129.65 C61.5 129.5 61.35 127.7 63 126.2Z" fill="#7a5a44"/><path d="M97 126.2 C98.65 127.7 98.5 129.5 97 129.65 C95.5 129.5 95.35 127.7 97 126.2Z" fill="#7a5a44"/></g>
+              <ellipse data-sk="parrot" class="belly parrot-belly" cx="80" cy="113" rx="33" ry="21"/>
+              <g data-sp="cow">
+                <path class="spot" d="M30 84 C28 72 40 66 48 72 C55 77 50 90 42 92 C35 94 31 90 30 84 Z"/>
+                <path class="spot" d="M104 50 C110 44 124 48 126 58 C127 66 118 70 110 66 C103 62 100 55 104 50 Z"/>
+                <ellipse class="muzzle" cx="80" cy="99" rx="14" ry="7.4"/>
+                <ellipse class="nostril-dot" cx="74.5" cy="99" rx="1.6" ry="2"/>
+                <ellipse class="nostril-dot" cx="85.5" cy="99" rx="1.6" ry="2"/>
+              </g>
+              <path data-sk="penguin" class="beak" d="M74 98 Q80 93 86 98 Q80 103 74 98Z"/>
+              <!-- scarves and the like sit under the face, across the bottom of the body -->
+              <g class="outfit-neck"></g>
+              <ellipse class="redface" cx="80" cy="100" rx="56" ry="32"/>
+              <g class="cheeks">
+                <ellipse class="cheek" cx="40" cy="106" rx="11" ry="6"/>
+                <ellipse class="cheek" cx="120" cy="106" rx="11" ry="6"/>
+                <path class="hatch" d="M34 108 l4 -6 M40 108 l4 -6 M46 108 l4 -6 M114 108 l4 -6 M120 108 l4 -6 M126 108 l4 -6"/>
+              </g>
+
+              <g class="eye-set">
+              <g data-eyes="open" class="eyes-open">
+                <g class="pupils">
+                  <ellipse cx="58" cy="92" rx="4.6" ry="5.2" class="eye-l ink"/>
+                  <ellipse cx="102" cy="92" rx="4.6" ry="5.2" class="eye-r ink"/>
+                  <circle cx="56.6" cy="90" r="1.6" class="eye-l glint"/>
+                  <circle cx="100.6" cy="90" r="1.6" class="eye-r glint"/>
+                  <circle data-sk="pigeon" cx="60.2" cy="94.6" r="1.4" class="eye-l glint glint2"/>
+                  <circle data-sk="pigeon" cx="104.2" cy="94.6" r="1.4" class="eye-r glint glint2"/>
+                  <!-- heavy lids for when it's up at night (.pet.tired); in the pupils' group so they move with the eyes -->
+                  <path class="tired-lid eye-l" d="M52.4 90.6 Q58 88.6 63.6 90.6"/>
+                  <path class="tired-lid eye-r" d="M96.4 90.6 Q102 88.6 107.6 90.6"/>
+                </g>
+              </g>
+              <g data-eyes="dizzy" class="line dizzy-eyes"><!-- spiral eyes (dizzy after being spun round when carried) -->
+                <g class="eye-l" transform="translate(58 92)"><path class="dz" d="M0 0 a1.2 1.2 0 0 1 2.4 0 a2.4 2.4 0 0 1 -4.8 0 a3.8 3.8 0 0 1 7.6 0 a5.2 5.2 0 0 1 -10.4 0"/></g>
+                <g class="eye-r" transform="translate(102 92)"><path class="dz" d="M0 0 a1.2 1.2 0 0 1 2.4 0 a2.4 2.4 0 0 1 -4.8 0 a3.8 3.8 0 0 1 7.6 0 a5.2 5.2 0 0 1 -10.4 0"/></g>
+              </g>
+              <g data-eyes="closed" class="line">
+                <path class="eye-l" d="M52 92 Q58 97 64 92"/>
+                <path class="eye-r" d="M96 92 Q102 97 108 92"/>
+              </g>
+              <g data-eyes="happy" class="line">
+                <path class="eye-l" d="M52 95 Q58 87 64 95"/>
+                <path class="eye-r" d="M96 95 Q102 87 108 95"/>
+              </g>
+              <g data-eyes="sparkle" class="star">
+                <path class="eye-l" d="M58 83 L60 89.5 L66 92 L60 94.5 L58 101 L56 94.5 L50 92 L56 89.5Z"/>
+                <path class="eye-r" d="M102 83 L104 89.5 L110 92 L104 94.5 L102 101 L100 94.5 L94 92 L100 89.5Z"/>
+                <!-- glints that blink around the stars, so the eyes glitter -->
+                <path class="eye-l glint g1" d="M65 83 l.8 2.2 l2.2 .8 l-2.2 .8 l-.8 2.2 l-.8 -2.2 l-2.2 -.8 l2.2 -.8 Z"/>
+                <path class="eye-l glint g2" d="M51 98 l.6 1.6 l1.6 .6 l-1.6 .6 l-.6 1.6 l-.6 -1.6 l-1.6 -.6 l1.6 -.6 Z"/>
+                <path class="eye-r glint g3" d="M109 84 l.6 1.6 l1.6 .6 l-1.6 .6 l-.6 1.6 l-.6 -1.6 l-1.6 -.6 l1.6 -.6 Z"/>
+                <path class="eye-r glint g4" d="M95 97 l.8 2.2 l2.2 .8 l-2.2 .8 l-.8 2.2 l-.8 -2.2 l-2.2 -.8 l2.2 -.8 Z"/>
+              </g>
+              <g data-eyes="squint" class="line">
+                <path class="eye-l" d="M53 87 L63 92 L53 97"/>
+                <path class="eye-r" d="M107 87 L97 92 L107 97"/>
+              </g>
+              <g data-eyes="teary">
+                <ellipse cx="58" cy="92" rx="5.4" ry="6" class="eye-l ink"/>
+                <ellipse cx="102" cy="92" rx="5.4" ry="6" class="eye-r ink"/>
+                <circle cx="56" cy="89.5" r="2.4" class="eye-l glint"/>
+                <circle cx="100" cy="89.5" r="2.4" class="eye-r glint"/>
+                <circle cx="60" cy="94.5" r="1.1" class="eye-l glint"/>
+                <circle cx="104" cy="94.5" r="1.1" class="eye-r glint"/>
+                <path class="eye-l tear" d="M52 99 q-3 6 0 8 q3 -2 0 -8z"/>
+                <path class="eye-r tear" d="M108 99 q-3 6 0 8 q3 -2 0 -8z"/>
+              </g>
+              <g data-eyes="confused">
+                <ellipse cx="58" cy="92" rx="4.6" ry="5.2" class="eye-l ink"/>
+                <circle cx="56.6" cy="90" r="1.6" class="eye-l glint"/>
+                <path class="eye-r line" d="M96 92 L108 92"/>
+              </g>
+
+              </g>
+
+              <!-- animal faces (bunny, cat, dog, hamster, hedgehog): a :3 mouth with a little nose (drawn after the mouths,
+                   below); which species gets which nose is set in styles.css. The hedgehog also has a light muzzle, like a hedgehog print. -->
+              <path data-sp="mouse" class="whiskers" d="M30 100 L10 94 M30 106 L8 108 M130 100 L150 94 M130 106 L152 108"/>
+              <ellipse class="hog-muzzle" cx="80" cy="101.4" rx="12.6" ry="9.4"/>
+              <path data-mouth="smile" class="line" d="M75 103 Q80 108 85 103"/>
+              <!-- a little lower lip under the smile for the mochi, pig and cow, the frog, the axolotl and the dragon -->
+              <path data-mouth="smile" class="line lip-extra lip-snout" d="M78.2 110.4 Q80 111.6 81.8 110.4"/>
+              <path data-mouth="smile" class="line lip-extra lip-frog" d="M75.4 112 Q80 115.4 84.6 112"/>
+              <path data-mouth="smile" class="line lip-extra lip-axo" d="M76.2 109.8 Q80 112.6 83.8 109.8"/>
+              <path data-mouth="smile" class="line lip-extra lip-dragon" d="M77.4 112.4 Q80 114 82.6 112.4"/>
+              <!-- the :3 mouth: with a little lip, or for the bunny a bit lower with buck teeth -->
+              <path data-mouth="smile" class="line cat-smile smile-lip" d="M80 100.6 V102.6 M74.2 101.8 Q76.8 105.6 80 102.6 Q83.2 105.6 85.8 101.8 M78.2 108.2 Q80 109.5 81.8 108.2"/>
+              <g data-mouth="smile" class="cat-smile smile-bunny"><path class="line" d="M80 101 V104.6 M73.6 103.2 Q76.6 107.4 80 104.6 Q83.4 107.4 86.4 103.2"/><path class="buck-teeth" d="M76.6 105.2 H83.4 V108.8 Q83.4 110.2 82 110.2 H78 Q76.6 110.2 76.6 108.8 Z M80 105.2 V110.2"/></g>
+              <path data-mouth="smile" class="line cat-smile smile-dragon" d="M72 107 Q80 115 88 107"/>
+              <path data-mouth="smile" class="line frog-smile" d="M57 101 Q80 116 103 101"/>
+              <path data-mouth="smile" class="line axo-smile" d="M64 101 Q80 112 96 101"/>
+              <g data-mouth="open">
+                <path d="M73 102 Q80 101 87 102 Q87 113 80 113 Q73 113 73 102Z" class="mouth-in"/>
+                <ellipse cx="80" cy="110" rx="3.6" ry="2.4" class="tongue"/>
+              </g>
+              <path data-mouth="chew" class="line chew" d="M73 105 q3.5 -3.5 7 0 q3.5 3.5 7 0"/>
+              <path data-mouth="wavy" class="line" d="M71 106 q3 -3 6 0 q3 3 6 0 q3 -3 6 0"/>
+              <ellipse data-mouth="o" cx="80" cy="105" rx="2.6" ry="3" class="mouth-in"/>
+              <!-- the animal noses sit in front of the mouths, so the :3 lines never cover them -->
+              <path class="cute-nose nose-round" d="M77.4 98.2 Q80 97.2 82.6 98.2 Q82 100.6 80 101 Q78 100.6 77.4 98.2 Z"/>
+              <path class="cute-nose nose-cat" d="M77.2 97.8 H82.8 Q82.6 99 80 101 Q77.4 99 77.2 97.8 Z"/>
+              <path class="cute-nose nose-dark" d="M76.4 98 Q80 96.4 83.6 98 Q83.2 100.8 80 101.6 Q76.8 100.8 76.4 98 Z"/>
+              <g data-sp="pig" class="snout">
+                <ellipse cx="80" cy="97" rx="9" ry="5.6"/>
+                <ellipse class="nostril" cx="76.6" cy="97" rx="1.4" ry="2"/>
+                <ellipse class="nostril" cx="83.4" cy="97" rx="1.4" ry="2"/>
+              </g>
+              <g data-sk="boar" class="tusks">
+                <path d="M68 100 C63 103 63 109 67 111 C69 107 71 104 73 101 Z"/>
+                <path d="M92 100 C97 103 97 109 93 111 C91 107 89 104 87 101 Z"/>
+              </g>
+              <path data-sk="chicken" class="chicken-wattle" d="M77.4 101.4 C75.4 107.6 78 111 80 108.6 C82 111 84.6 107.6 82.6 101.4 Z"/>
+              <path data-sp="birdie" class="beak" d="M75 99 Q80 95 85 99 Q80 103 75 99Z"/>
+              <path data-sk="pigeon" class="pigeon-cere" d="M77.4 97 Q80 92.6 82.6 97 Q80 98.6 77.4 97 Z"/>
+              <path data-sk="kiwi" class="beak kiwi-beak" d="M77.4 96 Q80 94.2 82.6 96 Q82.3 112 80.7 125 Q80 127 79.3 125 Q77.7 112 77.4 96 Z"/>
+              <path data-sk="parrot" class="beak parrot-beak" d="M72.5 97 C73 91 87 91 87.5 97 C88 103 85 108 80.5 108.6 C77 108 74.4 105 74 102 C73 100 72.6 98.6 72.5 97 Z"/>
+              <!-- hats are drawn at a slightly bigger scale, centred on the top of the head -->
+              <!-- full-size outfits such as hoodies cover the whole pet -->
+              <g class="outfit-body"></g>
+              <!-- with clothes on, neckwear moves here so it sits over the clothes -->
+              <g class="outfit-neck-over"></g>
+              <!-- glasses sit over the eyes, alongside any hat -->
+              <g class="outfit-faces"></g>
+              <!-- neckwear held in the mouth (toast) sits in front of the face -->
+              <g transform="translate(80 45) scale(1.3) translate(-80 -40)"><g class="outfit-hat"></g></g>
+              <!-- the bedtime blanket (app-bedtime.js), under the arms so the paws rest on top of it -->
+              <!-- the bedtime quilt (app-bedtime.js), under the arms so the paws rest on top of it: pastel patches with stitched seams -->
+              <g class="blanket">
+                <g clip-path="url(#quiltClip)">
+                  <rect x="5" y="116" width="25" height="17" fill="url(#qDots)"/>
+                  <rect x="30" y="116" width="25" height="17" fill="#fff0b0"/>
+                  <rect x="55" y="116" width="25" height="17" fill="url(#qGingham)"/>
+                  <rect x="80" y="116" width="25" height="17" fill="#c6e3ff"/>
+                  <rect x="105" y="116" width="25" height="17" fill="url(#qPeachDots)"/>
+                  <rect x="130" y="116" width="25" height="17" fill="url(#qStripes)"/>
+                  <rect x="5" y="133" width="25" height="17" fill="url(#qStripes)"/>
+                  <rect x="30" y="133" width="25" height="17" fill="#ffd6b8"/>
+                  <rect x="55" y="133" width="25" height="17" fill="url(#qDots)"/>
+                  <rect x="80" y="133" width="25" height="17" fill="url(#qGingham)"/>
+                  <rect x="105" y="133" width="25" height="17" fill="#d6ccf5"/>
+                  <rect x="130" y="133" width="25" height="17" fill="#c8ecd8"/>
+                  <path class="quilt-seam" d="M5 133 H155 M30 116 V150 M55 116 V150 M80 116 V150 M105 116 V150 M130 116 V150"/>
+                  <path class="quilt-heart" d="M92.5 122.2 c-1.6 -2.8 -6.2 -1.2 -4.3 2.1 l4.3 4.1 l4.3 -4.1 c1.9 -3.3 -2.7 -4.9 -4.3 -2.1z"/>
+                  <path class="quilt-star" d="M42.5 136.5 l1.2 2.6 2.8.4 -2 2 .5 2.8 -2.5 -1.4 -2.5 1.4 .5 -2.8 -2 -2 2.8 -.4 z M142.5 136.5 l1.2 2.6 2.8.4 -2 2 .5 2.8 -2.5 -1.4 -2.5 1.4 .5 -2.8 -2 -2 2.8 -.4 z"/>
+                </g>
+                <path class="blanket-cloth" d="M5 116 Q3 147 22 148 H138 Q157 147 155 116 Z"/>
+                <path class="blanket-cuff" d="M3 112 Q80 104 157 112 Q160 119 155 123 Q80 115 5 123 Q0 119 3 112 Z"/>
+                <path class="blanket-stitch" d="M10 117.6 Q80 110.6 150 117.6"/>
+              </g>
+              <!-- the teddy (app-bedtime.js draws it): at bedtime it sits in the bed beside the pet (moved out with the CSS
+                   translate property), and asleep it lies tilted under the right paw; drawn before the arms so the paw is on it -->
+              <g class="teddy-hug" transform="translate(94 96) rotate(18 19 21) scale(.95)"></g>
+              <!-- little nubbly arms -->
+              
+              
+              
+              <g class="soles"><g class="sole-part" transform="rotate(-12.0 54.0 137.5)"><g class="sole-paw"><ellipse class="sole-base" cx="54.0" cy="137.5" rx="8.3" ry="9.13"/><ellipse class="sole-bean" cx="54.0" cy="140.32" rx="4.15" ry="3.15"/><ellipse class="sole-bean" cx="47.86" cy="134.51" rx="1.74" ry="2.24" transform="rotate(-22 47.86 134.51)"/><ellipse class="sole-bean" cx="51.68" cy="131.19" rx="1.74" ry="2.24" transform="rotate(-8 51.68 131.19)"/><ellipse class="sole-bean" cx="56.32" cy="131.19" rx="1.74" ry="2.24" transform="rotate(8 56.32 131.19)"/><ellipse class="sole-bean" cx="60.14" cy="134.51" rx="1.74" ry="2.24" transform="rotate(22 60.14 134.51)"/></g><g class="sole-hoof"><ellipse class="sole-hoof-base" cx="54.0" cy="137.5" rx="8.3" ry="9.13"/><ellipse class="sole-hoof-toe" cx="50.02" cy="136.34" rx="3.49" ry="6.14" transform="rotate(4 50.02 136.34)"/><ellipse class="sole-hoof-toe" cx="57.98" cy="136.34" rx="3.49" ry="6.14" transform="rotate(-4 57.98 136.34)"/></g><g class="sole-bird"><ellipse class="sole-bird-toe" cx="48.69" cy="133.02" rx="2.16" ry="4.48" transform="rotate(-30 48.69 133.02)"/><ellipse class="sole-bird-toe" cx="54.0" cy="130.53" rx="2.16" ry="4.48"/><ellipse class="sole-bird-toe" cx="59.31" cy="133.02" rx="2.16" ry="4.48" transform="rotate(30 59.31 133.02)"/><ellipse class="sole-bird-pad" cx="54.0" cy="138.33" rx="5.64" ry="4.81"/><circle class="sole-claw" cx="47.03" cy="129.53" r="1.0"/><circle class="sole-claw" cx="54.0" cy="126.38" r="1.0"/><circle class="sole-claw" cx="60.97" cy="129.53" r="1.0"/></g><g class="sole-frog"><ellipse class="sole-frog-base" cx="54.0" cy="138.75" rx="7.97" ry="6.97"/><ellipse class="sole-frog-toe" cx="48.52" cy="132.85" rx="2.57" ry="2.57"/><ellipse class="sole-frog-toe" cx="54.0" cy="130.86" rx="2.57" ry="2.57"/><ellipse class="sole-frog-toe" cx="59.48" cy="132.85" rx="2.57" ry="2.57"/></g></g><g class="sole-part" transform="rotate(12.0 106.0 137.5)"><g class="sole-paw"><ellipse class="sole-base" cx="106.0" cy="137.5" rx="8.3" ry="9.13"/><ellipse class="sole-bean" cx="106.0" cy="140.32" rx="4.15" ry="3.15"/><ellipse class="sole-bean" cx="112.14" cy="134.51" rx="1.74" ry="2.24" transform="rotate(22 112.14 134.51)"/><ellipse class="sole-bean" cx="108.32" cy="131.19" rx="1.74" ry="2.24" transform="rotate(8 108.32 131.19)"/><ellipse class="sole-bean" cx="103.68" cy="131.19" rx="1.74" ry="2.24" transform="rotate(-8 103.68 131.19)"/><ellipse class="sole-bean" cx="99.86" cy="134.51" rx="1.74" ry="2.24" transform="rotate(-22 99.86 134.51)"/></g><g class="sole-hoof"><ellipse class="sole-hoof-base" cx="106.0" cy="137.5" rx="8.3" ry="9.13"/><ellipse class="sole-hoof-toe" cx="109.98" cy="136.34" rx="3.49" ry="6.14" transform="rotate(-4 109.98 136.34)"/><ellipse class="sole-hoof-toe" cx="102.02" cy="136.34" rx="3.49" ry="6.14" transform="rotate(4 102.02 136.34)"/></g><g class="sole-bird"><ellipse class="sole-bird-toe" cx="111.31" cy="133.02" rx="2.16" ry="4.48" transform="rotate(30 111.31 133.02)"/><ellipse class="sole-bird-toe" cx="106.0" cy="130.53" rx="2.16" ry="4.48"/><ellipse class="sole-bird-toe" cx="100.69" cy="133.02" rx="2.16" ry="4.48" transform="rotate(-30 100.69 133.02)"/><ellipse class="sole-bird-pad" cx="106.0" cy="138.33" rx="5.64" ry="4.81"/><circle class="sole-claw" cx="112.97" cy="129.53" r="1.0"/><circle class="sole-claw" cx="106.0" cy="126.38" r="1.0"/><circle class="sole-claw" cx="99.03" cy="129.53" r="1.0"/></g><g class="sole-frog"><ellipse class="sole-frog-base" cx="106.0" cy="138.75" rx="7.97" ry="6.97"/><ellipse class="sole-frog-toe" cx="111.48" cy="132.85" rx="2.57" ry="2.57"/><ellipse class="sole-frog-toe" cx="106.0" cy="130.86" rx="2.57" ry="2.57"/><ellipse class="sole-frog-toe" cx="100.52" cy="132.85" rx="2.57" ry="2.57"/></g></g></g>
+              <g class="outfit-soles"></g>
+              <g class="arm arm-l"><!-- the to-do list's clipboard (app-todo.js ticks its lines): it is in the hand, so it moves with the arm -->
+                <g class="wand wand-l">
+                  <path class="wd-edge" d="M27 122 L27 156"/><path class="wd-stick" d="M27 122 L27 156"/>
+                  <path class="wd-band" d="M27 130 L27 134"/>
+                  <path class="wd-star" d="M27 142 l2.6 5.6 l6 .8 l-4.4 4.2 l1.1 6 l-5.3 -2.9 l-5.3 2.9 l1.1 -6 l-4.4 -4.2 l6 -.8 Z" transform="translate(0 4)"/>
+                </g>
+                <g class="clipboard" id="clipboard" data-ticks="0" transform="translate(-47 1) rotate(-110 80 128)">
+                  <!-- the front (paper) faces out at his side; while he writes or inspects it turns round so the paper faces him -->
+                  <g class="cb-front">
+                    <rect class="cb-board" x="66.5" y="112" width="27" height="32" rx="3.4"/>
+                    <rect class="cb-paper" x="69.4" y="117" width="21.2" height="24" rx="1.6"/>
+                    <rect class="cb-clip" x="73.6" y="109" width="12.8" height="6.4" rx="1.8"/>
+                    <path class="cb-line" d="M77.6 123.4 h9 M77.6 130 h9 M77.6 136.6 h9"/>
+                    <path class="cb-ink" d="M77.6 123.4 h9"/>
+                    <path class="cb-tick" data-n="1" d="M72.2 123.2 l1.7 1.8 l3 -3.6"/>
+                    <path class="cb-tick" data-n="2" d="M72.2 129.8 l1.7 1.8 l3 -3.6"/>
+                    <path class="cb-tick" data-n="3" d="M72.2 136.4 l1.7 1.8 l3 -3.6"/>
+                  </g>
+                  <g class="cb-back">
+                    <rect class="cb-board cb-board-back" x="66.5" y="112" width="27" height="32" rx="3.4"/>
+                    <path class="cb-grain" d="M71 118 V138 M76 116 V140 M81 117 V141 M86 116 V139 M90 119 V137"/>
+                    <rect class="cb-clip" x="73.6" y="109" width="12.8" height="6.4" rx="1.8"/>
+                    <circle class="cb-hole" cx="80" cy="140" r="1.4"/>
+                  </g>
+                </g><ellipse cx="27" cy="117" rx="7" ry="9"/><path data-sk="pigeon" class="wing-bar" d="M20.4 116 Q27 112.6 33.6 116"/><path class="arm-cuff" d="M20.4 120.4 Q27 123.4 33.6 120.4"/><path class="arm-hand" d="M21.4 121.6 Q27 124 32.6 121.6 Q32 126 27 126 Q22 126 21.4 121.6 Z"/><path data-sp="frog" class="frog-web frog-web-hand" d="M21.2 122 Q19.4 133 23 132 Q25 128.5 27 132.5 Q29 128.5 31 132 Q34.6 133 32.8 122"/><g class="paw-part paw-hand"><path class="paw-line paw-toe-lines" d="M24.6 122 v3 M29.4 122 v3"/><g class="paw-beans"><path class="paw-bean" d="M24.7 119.8 a2.3 1.7 0 1 0 4.6 0 a2.3 1.7 0 1 0 -4.6 0 Z"/><circle class="paw-bean" cx="24" cy="122.8" r="1.05"/><circle class="paw-bean" cx="27" cy="123.7" r="1.05"/><circle class="paw-bean" cx="30" cy="122.8" r="1.05"/></g></g><g class="hoof-part hoof-hand"><path class="hoof" d="M20.3 119.6 Q27 122.8 33.7 119.6 Q33.2 126.2 27 126.2 Q20.8 126.2 20.3 119.6 Z"/><path class="hoof-split" d="M27 121.6 V126"/></g><ellipse class="arm-hi" cx="25" cy="114" rx="2.4" ry="3"/></g>
+              <g class="arm arm-r"><!-- props for the right hand on the to-do list: a chubby pencil and a magnifying glass (app-todo.js shows one at a time) -->
+                <g class="wand"><!-- a cartoon magic wand for Claude's alerts (app-send.js castWand): drawn along the arm, so it points up when the arm is raised -->
+                  <path class="wd-edge" d="M133 122 L133 156"/><path class="wd-stick" d="M133 122 L133 156"/>
+                  <path class="wd-band" d="M133 130 L133 134"/>
+                  <path class="wd-star" d="M133 142 l2.6 5.6 l6 .8 l-4.4 4.2 l1.1 6 l-5.3 -2.9 l-5.3 2.9 l1.1 -6 l-4.4 -4.2 l6 -.8 Z" transform="translate(0 4)"/>
+                </g>
+                <g class="pencil" transform="translate(121 128) rotate(-52) scale(1.4)">
+                  <path class="pc-wood" d="M0 5 L7 .6 V9.4 Z"/><path class="pc-lead" d="M0 5 L2.1 3.7 V6.3 Z"/>
+                  <rect class="pc-body" x="7" y=".6" width="14" height="8.8" rx="2.4"/>
+                  <path class="pc-shine" d="M9 2.6 H19"/>
+                  <rect class="pc-band" x="21" y=".8" width="2.6" height="8.4"/>
+                  <rect class="pc-eraser" x="23.6" y="1.2" width="4.6" height="7.6" rx="2.2"/>
+                  <circle class="pc-eye" cx="11.8" cy="4.6" r=".8"/><circle class="pc-eye" cx="16" cy="4.6" r=".8"/>
+                  <path class="pc-smile" d="M12.6 6.4 Q13.9 7.7 15.2 6.4"/>
+                </g>
+                <g class="magnifier">
+                  <path class="mg-handle-edge" d="M128.9 120.2 L141.5 134.5"/>
+                  <path class="mg-handle" d="M128.9 120.2 L141.5 134.5"/>
+                </g><ellipse cx="133" cy="117" rx="7" ry="9"/><path data-sk="pigeon" class="wing-bar" d="M126.4 116 Q133 112.6 139.6 116"/><path class="arm-cuff" d="M126.4 120.4 Q133 123.4 139.6 120.4"/><path class="arm-hand" d="M127.4 121.6 Q133 124 138.6 121.6 Q138 126 133 126 Q128 126 127.4 121.6 Z"/><path data-sp="frog" class="frog-web frog-web-hand" d="M127.2 122 Q125.4 133 129 132 Q131 128.5 133 132.5 Q135 128.5 137 132 Q140.6 133 138.8 122"/><g class="paw-part paw-hand"><path class="paw-line paw-toe-lines" d="M130.6 122 v3 M135.4 122 v3"/><g class="paw-beans"><path class="paw-bean" d="M130.7 119.8 a2.3 1.7 0 1 0 4.6 0 a2.3 1.7 0 1 0 -4.6 0 Z"/><circle class="paw-bean" cx="130" cy="122.8" r="1.05"/><circle class="paw-bean" cx="133" cy="123.7" r="1.05"/><circle class="paw-bean" cx="136" cy="122.8" r="1.05"/></g></g><g class="hoof-part hoof-hand"><path class="hoof" d="M126.3 119.6 Q133 122.8 139.7 119.6 Q139.2 126.2 133 126.2 Q126.8 126.2 126.3 119.6 Z"/><path class="hoof-split" d="M133 121.6 V126"/></g><ellipse class="arm-hi" cx="131" cy="114" rx="2.4" ry="3"/>
+                <!-- the lens is drawn after the hand, so a sleeve never covers the eye seen through the glass -->
+                <g class="magnifier">
+                  <g transform="translate(120 110) scale(1.3) translate(-120 -110)">
+                    <circle class="mg-lens" cx="120" cy="110" r="10.4"/>
+                    <!-- the eye seen through the glass, enlarged: it shows the same eye the pet has (open, sparkling, happy or closed) -->
+                    <g class="mg-eye">
+                      <g class="mg-open"><ellipse class="mg-pupil" cx="120" cy="110.4" rx="6.6" ry="7.6"/><circle class="mg-glint" cx="117.2" cy="106.8" r="2.3"/><circle class="mg-glint" cx="122.8" cy="114" r="1.1"/></g>
+                      <g class="mg-star"><path class="mg-pupil" d="M120 99.6 L122.7 107.3 L130.4 110 L122.7 112.7 L120 120.4 L117.3 112.7 L109.6 110 L117.3 107.3Z"/><path class="mg-glint mg-g1" d="M126.4 101.2 l.9 2.5 l2.5 .9 l-2.5 .9 l-.9 2.5 l-.9 -2.5 l-2.5 -.9 l2.5 -.9Z"/><path class="mg-glint mg-g2" d="M111 115.6 l.7 1.9 l1.9 .7 l-1.9 .7 l-.7 1.9 l-.7 -1.9 l-1.9 -.7 l1.9 -.7Z"/></g>
+                      <path class="mg-arc mg-happy" d="M113.4 113.4 Q120 103.4 126.6 113.4"/>
+                      <path class="mg-arc mg-closed" d="M113.4 108.6 Q120 114.6 126.6 108.6"/>
+                    </g>
+                    <path class="mg-shine" d="M112.6 107 Q113.8 102.6 118.4 101.6"/>
+                  </g>
+                </g>
+              </g>
+            </g>
+            <!-- shoes go on the feet, in front of the bottom of the body -->
+            <g class="outfit-feet"></g>
+          </g>
+
+          <g data-extra="zzz" class="zzz">
+            <text x="118" y="50">z</text><text x="128" y="38" class="z2">z</text><text x="137" y="28" class="z3">z</text>
+          </g>
+          <g data-extra="zzz" class="nose-bubble"><circle cx="93" cy="101" r="6"/></g>
+          <g data-extra="steam" class="steam">
+            <path d="M56 32 q-5 -5 0 -10 q5 -5 0 -10"/>
+            <path d="M104 32 q-5 -5 0 -10 q5 -5 0 -10"/>
+            <path d="M80 22 q-5 -5 0 -10 q5 -5 0 -10"/>
+          </g>
+          <g data-extra="hearts" class="hearts">
+            <path d="M22 52 c-3 -5 -10 -2 -7 3 l7 7 l7 -7 c3 -5 -4 -8 -7 -3z"/>
+            <path d="M139 46 c-2.5 -4 -8 -1.5 -5.5 2.5 l5.5 5.5 l5.5 -5.5 c2.5 -4 -3 -6.5 -5.5 -2.5z"/>
+          </g>
+          <g data-extra="sparkles" class="sparkles">
+            <path d="M24 66 l2 5 l5 2 l-5 2 l-2 5 l-2 -5 l-5 -2 l5 -2z"/>
+            <path d="M138 64 l1.6 4 l4 1.6 l-4 1.6 l-1.6 4 l-1.6 -4 l-4 -1.6 l4 -1.6z"/>
+            <path d="M120 30 l1.3 3.2 l3.2 1.3 l-3.2 1.3 l-1.3 3.2 l-1.3 -3.2 l-3.2 -1.3 l3.2 -1.3z"/>
+          </g>
+          <g data-extra="question" class="question"><text x="126" y="56">?</text></g>
+          <g data-extra="sweat" class="sweat"><path d="M131 62 q-6 10 0 14 q6 -4 0 -14z"/></g>
+          <g data-extra="shock" class="shock line"><path d="M30 44 l6 8 M24 56 l9 3 M130 44 l-6 8 M136 56 l-9 3"/></g>
+        </svg></div>
+        <div class="tummy" id="tummy" aria-hidden="true"></div>
+      </div>
+<button class="toy" id="toy" type="button" aria-label="Throw the toy"><span class="toy-ball"><svg viewBox="0 0 26 26" aria-hidden="true">
+        <g class="toy-kind" data-toy="ball"><circle class="ball-fill" cx="13" cy="13" r="11"/><path class="ball-band" d="M3.4 8.6 Q13 12.6 22.6 8.6 L23.8 13.8 Q13 18.4 2.2 13.8 Z"/><path class="ball-star" d="M13 10.8 l.9 1.9 2 .3 -1.5 1.4 .4 2 -1.8 -1 -1.8 1 .4 -2 -1.5 -1.4 2 -.3 z"/><circle class="toy-line" cx="13" cy="13" r="11"/><ellipse class="toy-hi" cx="8.6" cy="6.8" rx="2.6" ry="1.6" transform="rotate(-30 8.6 6.8)"/></g>
+        <g class="toy-kind" data-toy="yarn"><path class="yarn-tail" d="M21 19 Q25 23 22 25.4"/><circle class="yarn-fill" cx="13" cy="13" r="11"/><path class="yarn-lines" d="M5 7 Q13 11 15.6 23.6 M9.4 3.4 Q17 9 21 20.6 M2.6 13.6 Q11 13.4 13.4 24 M15 2.2 Q20 6 23.6 14"/><circle class="toy-line" cx="13" cy="13" r="11"/><ellipse class="toy-hi" cx="8.6" cy="6.8" rx="2.4" ry="1.4" transform="rotate(-30 8.6 6.8)"/></g>
+        <g class="toy-kind" data-toy="tennis"><circle class="tennis-fill" cx="13" cy="13" r="11"/><path class="tennis-seam" d="M4.6 5.8 Q10.8 13 4.4 20.4 M21.4 5.6 Q15.2 13 21.6 20.2"/><circle class="toy-line" cx="13" cy="13" r="11"/><ellipse class="toy-hi" cx="8.6" cy="6.8" rx="2.4" ry="1.4" transform="rotate(-30 8.6 6.8)"/></g>
+        <g class="toy-kind" data-toy="wrecker"><path class="wreck-spike" d="M13.0 0.4 L15.1 5.1 L19.3 2.1 L18.8 7.2 L23.9 6.7 L20.9 10.9 L25.6 13.0 L20.9 15.1 L23.9 19.3 L18.8 18.8 L19.3 23.9 L15.1 20.9 L13.0 25.6 L10.9 20.9 L6.7 23.9 L7.2 18.8 L2.1 19.3 L5.1 15.1 L0.4 13.0 L5.1 10.9 L2.1 6.7 L7.2 7.2 L6.7 2.1 L10.9 5.1 Z"/><circle class="wreck-fill" cx="13" cy="13" r="8.2"/><path class="wreck-hi" d="M8.4 10.2 Q9.6 7.8 12.4 7.2"/></g>
+      </svg></span></button>
+</body></html>
