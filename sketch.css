@@ -552,3 +552,16 @@ details.skp-box:not([open]) > summary { margin-bottom: 0 !important; }
 /* the message bar reads as a status bar */
 body.skp > .skp-status { font-size: .86rem; font-weight: 600; padding: 4px 16px; min-height: 1.9em; }
 @media (max-width: 900px) { #skZoom { display: none; } }
+
+/* settings tabs and the About page */
+.skp-dlg-tabs { margin: 0 0 4px; }
+.skp-ppane { display: grid; gap: 10px; }
+.skp-ppane[hidden] { display: none; }
+.skp-about-top { display: flex; align-items: center; gap: 12px; }
+.skp-about-pig { width: 64px; height: 54px; flex: none; filter: drop-shadow(0 0 6px rgba(255, 155, 184, .45)); }
+.skp-about-name { display: block; color: #ffd3e1; font-size: 1.1rem; }
+.skp-about-list { display: grid; grid-template-columns: auto 1fr; gap: 5px 14px; margin: 0; font-size: .84rem; }
+.skp-about-list dt { font-weight: 800; color: #ff9bb8; white-space: nowrap; }
+.skp-about-list dd { margin: 0; color: var(--ink); overflow-wrap: anywhere; }
+.skp-about-links { display: flex; flex-wrap: wrap; gap: 4px 14px; font-size: .82rem; }
+.skp-about-links a { color: #ff9bb8; }

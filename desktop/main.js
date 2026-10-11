@@ -1,7 +1,7 @@
 'use strict';
 // Varken Sketchpad as a Windows program: the same page, in its own window, with everything inside the installer
 // (nothing is loaded from the web except the optional AI cut-out model and your uploads to GitHub).
-const { app, BrowserWindow, Menu, protocol, net, shell, session, dialog } = require('electron');
+const { app, BrowserWindow, Menu, protocol, net, shell, session, dialog, ipcMain } = require('electron');
 const path = require('path');
 const { pathToFileURL } = require('url');
 
@@ -17,7 +17,7 @@ function createWindow() {
     width: 1360, height: 860, minWidth: 760, minHeight: 520,
     backgroundColor: '#1b1522', title: 'Varken Sketchpad', autoHideMenuBar: true,
     icon: path.join(ROOT, 'build', 'icon.png'),
-    webPreferences: { contextIsolation: true, nodeIntegration: false, sandbox: true }
+    webPreferences: { contextIsolation: true, nodeIntegration: false, sandbox: true, preload: path.join(__dirname, 'preload.js') }
   });
   win.loadURL('sketch://app/index.html?owner=1');   // this is her own copy: the upload buttons are on
   // links in the page (GitHub, help) open in the normal browser, not in this window
@@ -25,6 +25,17 @@ function createWindow() {
   win.webContents.on('will-navigate', (e, url) => { if (!url.startsWith('sketch://')) { e.preventDefault(); if (/^https?:/.test(url)) shell.openExternal(url); } });
   win.on('closed', () => { win = null; });
 }
+
+// what the page's About tab asks for
+ipcMain.handle('about:info', () => ({ version: app.getVersion(), packaged: app.isPackaged, electron: process.versions.electron, chrome: process.versions.chrome, platform: process.platform + ' ' + process.arch, userData: app.getPath('userData') }));
+ipcMain.handle('about:check', async () => {
+  if (!app.isPackaged) return { state: 'dev' };
+  try {
+    const { autoUpdater } = require('electron-updater');
+    const r = await autoUpdater.checkForUpdates();
+    return r && r.isUpdateAvailable ? { state: 'available', version: r.updateInfo.version } : { state: 'current' };
+  } catch (e) { return { state: 'error', message: String(e && e.message || e).slice(0, 120) }; }
+});
 
 function start() {
   app.whenReady().then(() => {

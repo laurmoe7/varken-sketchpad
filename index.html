@@ -55,7 +55,7 @@
         <hr>
         <button type="button" role="menuitem" data-cmd="clear">Clear drawing</button>
         <hr>
-        <button type="button" role="menuitem" data-cmd="prefs">Preferences…</button>
+        <button type="button" role="menuitem" data-cmd="prefs">Settings…</button>
       </div>
     </div>
     <div class="skp-menu">
@@ -98,6 +98,7 @@
       <button type="button" class="skp-menubtn" id="skMenuHelp" role="menuitem" aria-haspopup="true" aria-expanded="false">Help</button>
       <div class="skp-menulist" role="menu" hidden>
         <button type="button" role="menuitem" data-cmd="keys">Keyboard shortcuts…</button>
+        <button type="button" role="menuitem" data-cmd="about">About Varken Sketchpad</button>
       </div>
     </div>
   </nav>
@@ -297,8 +298,13 @@
     <dl><dt>Ctrl+Z / Ctrl+Y</dt><dd>Undo, redo</dd><dt>Ctrl+A</dt><dd>Select all</dd><dt>Ctrl+C / X / V</dt><dd>Copy, cut, paste</dd><dt>Ctrl+D</dt><dd>Duplicate</dd><dt>Delete</dt><dd>Remove picked lines</dd><dt>Alt+click</dt><dd>Take away, in Pick object</dd></dl>
   </div>
 </dialog>
-<dialog class="skp-dlg" id="skPrefsDlg" aria-label="Preferences">
-  <div class="skp-dlg-head"><strong>Preferences</strong><button type="button" class="skp-x" data-close aria-label="Close">✕</button></div>
+<dialog class="skp-dlg" id="skPrefsDlg" aria-label="Settings">
+  <div class="skp-dlg-head"><strong>Settings</strong><button type="button" class="skp-x" data-close aria-label="Close">✕</button></div>
+  <nav class="skp-tabs skp-dlg-tabs" id="skPrefTabs" role="tablist" aria-label="Settings pages">
+    <button type="button" role="tab" data-ptab="prefs" aria-selected="true">Preferences</button>
+    <button type="button" role="tab" data-ptab="about" aria-selected="false">About Varken Sketchpad</button>
+  </nav>
+  <div class="skp-ppane" data-ppane="prefs">
   <h3>Sound</h3>
   <label class="sk-check"><input type="checkbox" id="skPrefSound" checked> Play sounds</label>
   <div class="sk-row"><label class="sk-size">Volume <input type="range" id="skPrefVol" min="0" max="100" value="40" aria-label="Volume"><output id="skPrefVolNum">40</output></label><button type="button" class="skp-btn skp-small" id="skPrefTest">Test</button></div>
@@ -309,6 +315,14 @@
   <h3>Look</h3>
   <label class="sk-check"><input type="checkbox" id="skPrefCalm"> Calm mode: stop the fireflies and the mascot’s bobbing</label>
   <div class="sk-row"><button type="button" class="skp-btn skp-small" id="skPrefReset">Reset preferences</button></div>
+</div>
+  <div class="skp-ppane skp-about" data-ppane="about" hidden>
+    <div class="skp-about-top"><svg class="skp-about-pig" aria-hidden="true"><use href="#skMascotArt"/></svg><div><b class="skp-about-name">Varken Sketchpad</b><span class="skp-hint" id="skAboutVer">…</span></div></div>
+    <dl class="skp-about-list" id="skAboutList"></dl>
+    <div class="sk-row"><button type="button" class="skp-btn skp-small" id="skAboutCheck" hidden>Check for updates</button><button type="button" class="skp-btn skp-small" id="skAboutCopy">Copy details</button><button type="button" class="skp-btn skp-small" id="skAboutKeys">Keyboard shortcuts</button></div>
+    <span class="skp-hint" id="skAboutNote"></span>
+    <div class="skp-about-links"><a href="https://github.com/laurmoe7/varken-sketchpad" target="_blank" rel="noopener">The sketchpad on GitHub</a><a href="https://github.com/laurmoe7/varken-sketchpad/releases" target="_blank" rel="noopener">Releases</a><a href="https://github.com/laurmoe7/pet-shopper" target="_blank" rel="noopener">Fumufumu (the game)</a></div>
+  </div>
 </dialog>
 <dialog class="skp-dlg skp-dlg-wide" id="skSendDlg" aria-label="Send to Claude">
   <div class="skp-dlg-head"><strong>Send to Claude</strong><button type="button" class="skp-x" data-close aria-label="Close">✕</button></div>
@@ -354,7 +368,7 @@
 </dialog>
 
 <!-- the pet and the toy are borrowed from the game's own page (index.html) when this page opens, so they are always the current ones -->
-<svg width="0" height="0" style="position:absolute" aria-hidden="true"><defs id="skDefs"></defs></svg>
+<svg width="0" height="0" style="position:absolute" aria-hidden="true"><defs id="skDefs"></defs><symbol id="skMascotArt" viewBox="0 0 40 34"><path class="mt" d="M9 12L7 3.500l8 3z" fill="#ffb3c4" stroke="#5b4239" stroke-width="1.600" stroke-linejoin="round"/><path class="mt" d="M31 12l2-8.500-8 3z" fill="#ffb3c4" stroke="#5b4239" stroke-width="1.600" stroke-linejoin="round"/><ellipse cx="20" cy="19" rx="16" ry="13.500" fill="#ffc9d6" stroke="#5b4239" stroke-width="1.800"/><g class="me"><ellipse cx="12.500" cy="16" rx="1.800" ry="2.300" fill="#5b4239"/><ellipse cx="27.500" cy="16" rx="1.800" ry="2.300" fill="#5b4239"/></g><ellipse cx="8" cy="21" rx="2.800" ry="1.700" fill="#ff8fab" opacity=".7"/><ellipse cx="32" cy="21" rx="2.800" ry="1.700" fill="#ff8fab" opacity=".7"/><ellipse cx="20" cy="22" rx="6.500" ry="4.800" fill="#ffaabd" stroke="#5b4239" stroke-width="1.500"/><ellipse cx="17.500" cy="22" rx="1.200" ry="1.700" fill="#5b4239"/><ellipse cx="22.500" cy="22" rx="1.200" ry="1.700" fill="#5b4239"/></symbol></svg>
 <div id="skSource" aria-hidden="true"></div>
 
 <script>window.SK_SOURCE = 'game/source.html';</script>

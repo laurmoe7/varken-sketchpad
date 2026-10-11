@@ -21,6 +21,7 @@
     "productName": "Varken Sketchpad",
     "files": [
       "desktop/main.js",
+      "desktop/preload.js",
       "index.html",
       "sketch.js",
       "sketch.css",

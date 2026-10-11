@@ -2803,6 +2803,57 @@ document.addEventListener('pointercancel', function () { skTipDown = false; skTi
 document.addEventListener('keyup', function (e) { if (e.target.matches && e.target.matches('input[type="range"]')) skTipHide(700); });
 $('skHist').addEventListener('toggle', skHistLog);
 $('skHistList').addEventListener('click', function (e) { var b = e.target.closest('[data-step]'); if (b) skHistGo(+b.dataset.step); });
+// ---------- settings tabs and the About page ----------
+var SK_BUILD = 2, SK_BUILD_DATE = '2026-10-11';   // raise SK_BUILD (and the date) with every change that goes out: the About page shows them
+function skPrefTab(name) {
+  document.querySelectorAll('#skPrefTabs [data-ptab]').forEach(function (b) { b.setAttribute('aria-selected', String(b.dataset.ptab === name)); });
+  document.querySelectorAll('#skPrefsDlg [data-ppane]').forEach(function (p) { p.hidden = p.dataset.ppane !== name; });
+  if (name === 'about') skAboutFill();
+}
+$('skPrefTabs').addEventListener('click', function (e) { var b = e.target.closest('[data-ptab]'); if (b) skPrefTab(b.dataset.ptab); });
+function skOpenSettings(tab) { skPrefTab(tab || 'prefs'); if (!$('skPrefsDlg').open) $('skPrefsDlg').showModal(); }
+var skAboutText = '';
+/** Fills the About page: version, game snapshot, engine, saved data. */
+async function skAboutFill() {
+  var rows = [], desk = window.varkenDesktop ? await window.varkenDesktop.info().catch(function () { return null; }) : null;
+  var snap = null;
+  try { snap = await (await fetch('game/snapshot.json', { cache: 'no-cache' })).json(); } catch (e) { /* no note */ }
+  var used = 0, canvases = 0;
+  try {
+    Object.keys(localStorage).forEach(function (k) { if (k.indexOf('nibble-sketchpad') === 0) used += (k.length + (localStorage.getItem(k) || '').length) * 2; });
+    ['pet', 'scene', 'toy', 'room', 'canvas'].forEach(function (m) { if (SK.strokes[m].length || SK.images[m].length) canvases++; });
+  } catch (e) { /* storage not available */ }
+  var gh = {};
+  try { gh = ghSettings() || {}; } catch (e) { /* none */ }
+  var ua = /Chrome\/([\d.]+)/.exec(navigator.userAgent);
+  rows.push(['Program', desk ? 'Windows program ' + desk.version + (desk.packaged ? '' : ' (running from source)') : 'In a web browser']);
+  rows.push(['Page build', SK_BUILD + ' (' + SK_BUILD_DATE + ')']);
+  rows.push(['Game files', snap ? 'Fumufumu build ' + (snap.build || '?') + ', copied ' + (snap.copiedAt || '?') : 'copied from Fumufumu (date not noted)']);
+  rows.push(['Engine', desk ? 'Electron ' + desk.electron + ', Chromium ' + desk.chrome + ', ' + desk.platform : (ua ? 'Chromium ' + ua[1] : navigator.userAgent.slice(0, 60))]);
+  rows.push(['Saved data', (used / 1024 < 10 ? (used / 1024).toFixed(1) : Math.round(used / 1024)) + ' KB, ' + canvases + (canvases === 1 ? ' canvas' : ' canvases') + ' with a drawing' + (desk ? '; kept in ' + desk.userData : '; kept in this browser')]);
+  rows.push(['GitHub upload', (SK_OWNER ? 'on' : 'off') + (gh.token ? ', token saved' : ', no token') + (gh.repo ? ', ' + gh.repo + ' / ' + (gh.branch || 'drawings') : '')]);
+  rows.push(['Undo steps kept', String(SK_PREFS.undo)]);
+  $('skAboutVer').textContent = desk ? 'Version ' + desk.version : 'Web version, build ' + SK_BUILD;
+  var dl = $('skAboutList');
+  dl.replaceChildren.apply(dl, rows.reduce(function (acc, r) {
+    var dt = document.createElement('dt'), dd = document.createElement('dd');
+    dt.textContent = r[0]; dd.textContent = r[1];
+    return acc.concat([dt, dd]);
+  }, []));
+  skAboutText = 'Varken Sketchpad ' + (desk ? desk.version : 'web build ' + SK_BUILD) + '\n' + rows.map(function (r) { return r[0] + ': ' + r[1]; }).join('\n');
+  $('skAboutCheck').hidden = !(window.varkenDesktop && desk && desk.packaged);
+}
+$('skAboutCopy').addEventListener('click', function () {
+  navigator.clipboard.writeText(skAboutText).then(function () { $('skAboutNote').textContent = 'Copied. Paste it in the chat if something is wrong.'; }, function () { $('skAboutNote').textContent = 'Could not copy.'; });
+});
+$('skAboutKeys').addEventListener('click', function () { $('skPrefsDlg').close(); $('skKeysDlg').showModal(); });
+$('skAboutCheck').addEventListener('click', function () {
+  var note = $('skAboutNote');
+  note.textContent = 'Looking for a newer version…';
+  window.varkenDesktop.checkForUpdates().then(function (r) {
+    note.textContent = r.state === 'available' ? 'Version ' + r.version + ' is out. It downloads in the background and you will be asked to restart.' : r.state === 'current' ? 'You have the newest version.' : r.state === 'dev' ? 'Updates only work in the installed program.' : 'Could not check (' + (r.message || 'no connection') + ').';
+  }).catch(function () { note.textContent = 'Could not check.'; });
+});
 // ---------- preferences ----------
 var SK_PREFS = { sound: true, vol: 40, ring: true, tip: true, undo: 60, calm: false };
 function skPrefsLoad() {
@@ -2920,7 +2971,8 @@ function skCommand(cmd) {
   else if (cmd === 'fliph') skFlipAll('x');
   else if (cmd === 'flipv') skFlipAll('y');
   else if (cmd === 'keys') $('skKeysDlg').showModal();
-  else if (cmd === 'prefs') $('skPrefsDlg').showModal();
+  else if (cmd === 'prefs') skOpenSettings('prefs');
+  else if (cmd === 'about') skOpenSettings('about');
   else if (cmd === 'undo') skUndo();
   else if (cmd === 'redo') skRedo();
   else if (cmd === 'selectall') { skSetTool('select'); SK.pick = SK.strokes[SK.mode].filter(skSelectable); skXfRender(); }

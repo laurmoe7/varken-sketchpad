@@ -45,4 +45,8 @@ function element(html, id) {
   const parts = SOURCE_IDS.map(id => element(index, id));
   fs.writeFileSync(path.join(out, 'source.html'), '<!doctype html>\n<!-- made by tools/sync-from-game.js from the game\'s index.html: only the pet and the toy -->\n<html><body>\n' + parts.join('\n') + '\n</body></html>\n');
   console.log('wrote source.html (' + SOURCE_IDS.join(', ') + ')');
+  // which game this snapshot is of, shown in the sketchpad's About tab
+  const build = (/var BUILD = '([^']*)'/.exec(await read('app.js')) || [])[1] || '';
+  fs.writeFileSync(path.join(out, 'snapshot.json'), JSON.stringify({ build, copiedAt: new Date().toISOString().slice(0, 10) }, null, 1) + '\n');
+  console.log('wrote snapshot.json (game build ' + (build || '?') + ')');
 })().catch(e => { console.error('Could not copy:', e.message); process.exit(1); });
