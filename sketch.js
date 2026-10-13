@@ -597,12 +597,6 @@ function skSegDist(p, a, b) {
   var t = len2 ? Math.max(0, Math.min(1, ((p[0] - a[0]) * dx + (p[1] - a[1]) * dy) / len2)) : 0;
   return Math.hypot(a[0] + t * dx - p[0], a[1] + t * dy - p[1]);
 }
-/** @returns {number[]} The nearest point to p on a straight piece of line between a and b. */
-function skSegNear(p, a, b) {
-  var dx = b[0] - a[0], dy = b[1] - a[1], len2 = dx * dx + dy * dy;
-  var t = len2 ? Math.max(0, Math.min(1, ((p[0] - a[0]) * dx + (p[1] - a[1]) * dy) / len2)) : 0;
-  return [a[0] + t * dx, a[1] + t * dy];
-}
 /** @returns {number[]} The point between a kept point and a rubbed-out one that sits exactly on the eraser's edge, so a cut end is clean. */
 function skEdgePt(keep, gone, near, rad) {
   var lo = 0, hi = 1, k;   // lo stays on the kept side
@@ -641,7 +635,7 @@ function skKeptRuns(gone) {
 }
 /**
  * Cuts the parts of a pen line that are under the eraser out of it.
- * @param {{near: function, toward: function}} er  The eraser: how far a point is from it, and the way from a point to it.
+ * @param {{near: function}} er  The eraser: how far a point is from it.
  * @param {number} rad  How close counts as under it (the eraser's radius plus half the line's width).
  * @returns {?{s: Object, c0: boolean, c1: boolean}[]} The pieces left (as new lines, maybe none) and whether each end was cut, or null if the eraser did not reach any of its points.
  */
@@ -671,18 +665,30 @@ function skRibbable(s) { return !s.fill && !s.d && !s.pr && !s.bucket && !L.SKET
 /** @returns {number} The thin outline a ribbon shape is drawn with. */
 function skThin() { return +(SK_VIEW[SK.mode].w * 0.0015).toFixed(2); }
 /**
- * @returns {number[][]} The two corners of a flat cut face at the end of a ribbon: where its two sides meet the eraser's edge.
+ * @returns {number[][]} The cut face at the end of a ribbon: where each fibre of the ribbon, from its left side to its right, meets the eraser's
+ * edge. So the cut has the eraser's own shape: a round bite from the round eraser, a straight line from the ruler.
  * @param {number[]} E  The end of the middle line (its round end would just touch the eraser).
  * @param {number[]} inner  The point before it, inside the ribbon.
  * @param {number} hp  Half the ribbon's width there.
- * @param {number[]} m  The way from E to the eraser (unit).
+ * @param {{near: function}} er  The eraser.
+ * @param {number} edge  How far from the eraser the ribbon's outline should stop.
  */
-function skCutFace(E, inner, hp, m) {
-  var dx = E[0] - inner[0], dy = E[1] - inner[1], L2 = Math.hypot(dx, dy) || 1, d = [dx / L2, dy / L2], n = [-d[1], d[0]];
-  var dm = d[0] * m[0] + d[1] * m[1], nm = n[0] * m[0] + n[1] * m[1];
-  if (dm < 0.3) { dm = 1; nm = 0; }   // the line only grazes the eraser: a square end instead
-  var tL = Math.max(-hp, Math.min(4 * hp, hp * (1 - nm) / dm)), tR = Math.max(-hp, Math.min(4 * hp, hp * (1 + nm) / dm));
-  return [[E[0] + n[0] * hp + d[0] * tL, E[1] + n[1] * hp + d[1] * tL], [E[0] - n[0] * hp + d[0] * tR, E[1] - n[1] * hp + d[1] * tR]];
+function skCutFace(E, inner, hp, er, edge) {
+  var dx = E[0] - inner[0], dy = E[1] - inner[1], L2 = Math.hypot(dx, dy) || 1, d = [dx / L2, dy / L2], n = [-d[1], d[0]], ts = [], K = 6, k, j;
+  for (k = 0; k <= K; k++) {
+    var u = 1 - 2 * k / K, B = [E[0] + n[0] * hp * u, E[1] + n[1] * hp * u];   // a fibre, from the left side to the right
+    var at = function (t) { return er.near([B[0] + d[0] * t, B[1] + d[1] * t]); };
+    var lo = -hp, step = hp * 5 / 24, t = null;   // walk out from a little way back inside the ribbon to the first place inside the eraser (a small eraser could be passed right through)
+    for (j = 1; j <= 24 && t === null; j++) if (at(lo + step * j) < edge) { t = lo + step * j; }
+    if (t !== null) { var a = t - step, b = t; for (j = 0; j < 12; j++) { var m = (a + b) / 2; if (at(m) < edge) b = m; else a = m; } t = a; }
+    ts.push(t);
+  }
+  for (k = 0; k <= K; k++) if (ts[k] === null) {   // a fibre the eraser never reached ends level with its nearest fibre that was cut (or square at E)
+    var best = null, bd = Infinity;
+    for (j = 0; j <= K; j++) if (ts[j] !== null && Math.abs(j - k) < bd) { bd = Math.abs(j - k); best = ts[j]; }
+    ts[k] = best === null ? 0 : best;
+  }
+  return ts.map(function (t, i) { var u = 1 - 2 * i / K; return [+(E[0] + n[0] * hp * u + d[0] * t).toFixed(2), +(E[1] + n[1] * hp * u + d[1] * t).toFixed(2)]; });
 }
 /** @returns {number[][]} A ribbon's outline from its middle line and widths (`rib`: pts, w, t, cap0, cap1, face0, face1, jit, nick, seed). */
 function skRibPoly(rb) {
@@ -704,11 +710,11 @@ function skRibCv(poly) {
   return { closed: true, a: a };
 }
 /** @returns {Object} A piece of a plain line as a ribbon shape, with a flat face at each end the eraser cut. */
-function skLineToRib(piece, c0, c1, er) {
+function skLineToRib(piece, c0, c1, er, r) {
   var pts = piece.pts, n = pts.length, w = piece.width, t = skThin(), hp = Math.max(0.01, (w - t) / 2);
   var rib = { pts: pts, w: pts.map(function () { return w; }), t: t, cap0: c0 ? 'flat' : 'round', cap1: c1 ? 'flat' : 'round', jit: 0, nick: 0, seed: 1 };
-  if (c0) rib.face0 = skCutFace(pts[0], pts[1], hp, er.toward(pts[0]));
-  if (c1) rib.face1 = skCutFace(pts[n - 1], pts[n - 2], hp, er.toward(pts[n - 1]));
+  if (c0) rib.face0 = skCutFace(pts[0], pts[1], hp, er, r + t / 2);
+  if (c1) rib.face1 = skCutFace(pts[n - 1], pts[n - 2], hp, er, r + t / 2);
   var out = { pts: skRibPoly(rib), color: piece.color, width: t, fill: true, closed: true, lay: piece.lay, style: 'solid', rib: rib };
   out.cv = skRibCv(out.pts);
   if (piece.clip) out.clip = true;
@@ -737,12 +743,12 @@ function skEraseRib(s, er, r, hard) {
     if (ru.a > 0) {   // cut at the start
       var E0 = skEdgePt(P[ru.a], P[ru.a - 1], er.near, r + w[0] / 2);
       pts.unshift(E0); w.unshift(w[0]);
-      piece.cap0 = hard ? 'flat' : 'round'; piece.face0 = hard ? skCutFace(E0, pts[1], Math.max(0.01, (w[0] - tt) / 2), er.toward(E0)) : null;
+      piece.cap0 = hard ? 'flat' : 'round'; piece.face0 = hard ? skCutFace(E0, pts[1], Math.max(0.01, (w[0] - tt) / 2), er, r + tt / 2) : null;
     }
     if (ru.b < n - 1) {   // cut at the end
       var E1 = skEdgePt(P[ru.b], P[ru.b + 1], er.near, r + w[w.length - 1] / 2);
       pts.push(E1); w.push(w[w.length - 1]);
-      piece.cap1 = hard ? 'flat' : 'round'; piece.face1 = hard ? skCutFace(E1, pts[pts.length - 2], Math.max(0.01, (w[w.length - 1] - tt) / 2), er.toward(E1)) : null;
+      piece.cap1 = hard ? 'flat' : 'round'; piece.face1 = hard ? skCutFace(E1, pts[pts.length - 2], Math.max(0.01, (w[w.length - 1] - tt) / 2), er, r + tt / 2) : null;
     }
     if (pts.length < 2 || skArcLen(pts).pop() < v.w * 0.001) return null;
     piece.pts = pts.map(function (p) { return [+p[0].toFixed(2), +p[1].toFixed(2)]; }); piece.w = w.map(function (x) { return +x.toFixed(3); });
@@ -758,8 +764,8 @@ function skXfRib(s, op) {
   if (!rb) return;
   var extra = (rb.face0 || []).concat(rb.face1 || []), r = L.sketchXform({ pts: rb.pts.concat(extra), width: 1, d: null }, op), n = rb.pts.length, at = n;
   rb.pts = r.pts.slice(0, n);
-  if (rb.face0) { rb.face0 = r.pts.slice(at, at + 2); at += 2; }
-  if (rb.face1) rb.face1 = r.pts.slice(at, at + 2);
+  if (rb.face0) { rb.face0 = r.pts.slice(at, at + rb.face0.length); at += rb.face0.length; }
+  if (rb.face1) rb.face1 = r.pts.slice(at, at + rb.face1.length);
   if (op.kind === 'scale') { var k = Math.sqrt(Math.abs(op.sx * op.sy)); rb.w = rb.w.map(function (x) { return +(x * k).toFixed(3); }); if (rb.t) rb.t = +(rb.t * k).toFixed(3); }
 }
 /**
@@ -776,17 +782,14 @@ function skEraseAt(pt, from) {
     var dist = Math.hypot(pt[0] - from[0], pt[1] - from[1]), steps = Math.floor(dist / (r * 0.6)), i;
     for (i = 1; i <= steps; i++) spots = spots.concat(skSpots([from[0] + (pt[0] - from[0]) * i / (steps + 1), from[1] + (pt[1] - from[1]) * i / (steps + 1)]));
   }
-  var unit = function (p, q) { var d = Math.hypot(q[0] - p[0], q[1] - p[1]) || 1; return [(q[0] - p[0]) / d, (q[1] - p[1]) / d]; };
   if (straight) {   // the exact straight band (and its mirrored and turned copies), not a row of circles
     var A = skSpots(from), B = skSpots(pt);
     er = {
-      near: function (p) { var best = Infinity; for (k = 0; k < A.length; k++) best = Math.min(best, skSegDist(p, A[k], B[k])); return best; },
-      toward: function (p) { var best = Infinity, q = p; for (k = 0; k < A.length; k++) { var c = skSegNear(p, A[k], B[k]), d = Math.hypot(c[0] - p[0], c[1] - p[1]); if (d < best) { best = d; q = c; } } return unit(p, q); }
+      near: function (p) { var best = Infinity; for (k = 0; k < A.length; k++) best = Math.min(best, skSegDist(p, A[k], B[k])); return best; }
     };
   } else {
     er = {
-      near: function (p) { var best = Infinity; for (k = 0; k < spots.length; k++) best = Math.min(best, Math.hypot(p[0] - spots[k][0], p[1] - spots[k][1])); return best; },
-      toward: function (p) { var best = Infinity, q = p; for (k = 0; k < spots.length; k++) { var d = Math.hypot(p[0] - spots[k][0], p[1] - spots[k][1]); if (d < best) { best = d; q = spots[k]; } } return unit(p, q); }
+      near: function (p) { var best = Infinity; for (k = 0; k < spots.length; k++) best = Math.min(best, Math.hypot(p[0] - spots[k][0], p[1] - spots[k][1])); return best; }
     };
   }
   var hitsLine = function (s) {
@@ -804,7 +807,7 @@ function skEraseAt(pt, from) {
       else if (s.fill || s.d || s.pr) { changed = true; return; }   // a shape without a middle line cannot be cut: it goes whole
       else {
         var cut = skEraseCut(s, er, r + s.width / 2);
-        if (cut) pieces = hard && skRibbable(s) ? cut.map(function (c) { return skLineToRib(c.s, c.c0, c.c1, er); }) : cut.map(function (c) { return c.s; });
+        if (cut) pieces = hard && skRibbable(s) ? cut.map(function (c) { return skLineToRib(c.s, c.c0, c.c1, er, r); }) : cut.map(function (c) { return c.s; });
       }
       if (!pieces) { keep.push(s); return; }
       changed = true;
@@ -1110,7 +1113,7 @@ function skTaper(len, widths, a, b) {
 }
 /**
  * @returns {number[][]} A line as a filled ribbon: as wide at each point as `widths` says.
- * @param {{cap: string, cap0: ?string, cap1: ?string, face0: ?number[][], face1: ?number[][], jitter: number, nick: number, rng: function}} o  cap: round, flat or fray (cap0 and cap1 for the start and the end); face0/face1: the two corners of a flat cut face at that end; jitter roughens the edges (in widths); nick: how often a bigger bite is taken.
+ * @param {{cap: string, cap0: ?string, cap1: ?string, face0: ?number[][], face1: ?number[][], jitter: number, nick: number, rng: function}} o  cap: round, flat or fray (cap0 and cap1 for the start and the end); face0/face1: the points of a cut face at that end, from the left side to the right; jitter roughens the edges (in widths); nick: how often a bigger bite is taken.
  */
 function skBrushPoly(pts, widths, o) {
   var n = pts.length, i, m, Lp = [], Rp = [], dirs = [], rnd = o.rng || function () { return 0.5; }, jit = o.jitter || 0;
@@ -1140,17 +1143,20 @@ function skBrushPoly(pts, widths, o) {
     for (k = 1; k < 8; k++) { var ang = base + Math.PI / 2 - Math.PI * k / 8; out.push([c[0] + Math.cos(ang) * r, c[1] + Math.sin(ang) * r]); }
     return out;
   };
-  var fit = function (idx, face) {   // a cut face: its corners replace the side points at that end, each on the side it is nearer to
-    var a = face[0], b = face[1], same = Math.hypot(a[0] - Lp[idx][0], a[1] - Lp[idx][1]) + Math.hypot(b[0] - Rp[idx][0], b[1] - Rp[idx][1]), swapped = Math.hypot(b[0] - Lp[idx][0], b[1] - Lp[idx][1]) + Math.hypot(a[0] - Rp[idx][0], a[1] - Rp[idx][1]);
-    if (same <= swapped) { Lp[idx] = a.slice(); Rp[idx] = b.slice(); } else { Lp[idx] = b.slice(); Rp[idx] = a.slice(); }
+  var dist = function (a, b) { return Math.hypot(a[0] - b[0], a[1] - b[1]); };
+  var orient = function (idx, face) {   // a cut face runs from the left side to the right side
+    var a = face[0], b = face[face.length - 1];
+    return dist(a, Lp[idx]) + dist(b, Rp[idx]) <= dist(b, Lp[idx]) + dist(a, Rp[idx]) ? face : face.slice().reverse();
   };
-  if (o.face1) fit(n - 1, o.face1);
-  if (o.face0) fit(0, o.face0);
-  var wn = widths[n - 1], w0 = widths[0], k1 = o.face1 ? 'flat' : (o.cap1 || o.cap), k0 = o.face0 ? 'flat' : (o.cap0 || o.cap);
-  var Le = Lp.slice(), Re = Rp.slice().reverse();   // a flat end's corners go in twice, so the smoothing the page draws with leaves them sharp
-  if (k1 === 'flat') { Le.push(Lp[n - 1].slice()); Re.unshift(Rp[n - 1].slice()); }
-  if (k0 === 'flat') { Le.unshift(Lp[0].slice()); Re.push(Rp[0].slice()); }
-  var poly = Le.concat(cap(pts[n - 1], dirs[n - 1], wn / 2, wn, k1), Re, cap(pts[0], [-dirs[0][0], -dirs[0][1]], w0 / 2, w0, k0));
+  var wn = widths[n - 1], w0 = widths[0], k1 = o.face1 ? 'face' : (o.cap1 || o.cap), k0 = o.face0 ? 'face' : (o.cap0 || o.cap);
+  var Le = Lp.slice(), Re = Rp.slice().reverse(), end = [], start = [];   // the corners of a face or a flat end go in twice, so the smoothing the page draws with leaves them sharp
+  if (k1 === 'face') { var F1 = orient(n - 1, o.face1); Le[n - 1] = F1[0].slice(); Re[0] = F1[F1.length - 1].slice(); end = [F1[0].slice()].concat(F1.slice(1, -1), [F1[F1.length - 1].slice()]); }
+  else if (k1 === 'flat') { Le.push(Lp[n - 1].slice()); Re.unshift(Rp[n - 1].slice()); }
+  else end = cap(pts[n - 1], dirs[n - 1], wn / 2, wn, k1);
+  if (k0 === 'face') { var F0 = orient(0, o.face0); Le[0] = F0[0].slice(); Re[Re.length - 1] = F0[F0.length - 1].slice(); start = [F0[F0.length - 1].slice()].concat(F0.slice(1, -1).reverse(), [F0[0].slice()]); }
+  else if (k0 === 'flat') { Le.unshift(Lp[0].slice()); Re.push(Rp[0].slice()); }
+  else start = cap(pts[0], [-dirs[0][0], -dirs[0][1]], w0 / 2, w0, k0);
+  var poly = Le.concat(end, Re, start);
   return poly.map(r2);
 }
 /** @returns {number[][]} Points spread evenly along the line, `step` apart, each with the pen pressure there as a third number. */
@@ -2905,7 +2911,7 @@ function skSetTool(t) {
   if (t === 'shape') skStatus.textContent = 'Drag to draw the shape. Shift keeps it even. Pick the shape in the list; Fill colours it in.';
   if (t === 'lasso') skStatus.textContent = 'Draw a loop round what you want. Shift adds. Then resize, turn or move it.';
   if (t === 'bucket') skStatus.textContent = 'Click inside a closed area to fill it with the pen colour.';
-  if (t === 'erase') skStatus.textContent = 'Rub out part of a line. Shift: the whole line. Hold Ctrl and drag for a straight edge, like a ruler. Hard cuts (Draw panel) gives flat ends.';
+  if (t === 'erase') skStatus.textContent = 'Rub out part of a line. Shift: the whole line. Hold Ctrl and drag for a straight edge, like a ruler. Hard cuts (Draw panel) cuts a clean edge.';
   SK.tool = t;
   skPress($('skTools'), 'tool', t);
   skApplyLook();
@@ -3245,7 +3251,7 @@ document.addEventListener('keyup', function (e) { if (e.target.matches && e.targ
 $('skHist').addEventListener('toggle', skHistLog);
 $('skHistList').addEventListener('click', function (e) { var b = e.target.closest('[data-step]'); if (b) skHistGo(+b.dataset.step); });
 // ---------- settings tabs and the About page ----------
-var SK_BUILD = 5, SK_BUILD_DATE = '2026-10-13';   // raise SK_BUILD (and the date) with every change that goes out: the About page shows them
+var SK_BUILD = 6, SK_BUILD_DATE = '2026-10-13';   // raise SK_BUILD (and the date) with every change that goes out: the About page shows them
 function skPrefTab(name) {
   document.querySelectorAll('#skPrefTabs [data-ptab]').forEach(function (b) { b.setAttribute('aria-selected', String(b.dataset.ptab === name)); });
   document.querySelectorAll('#skPrefsDlg [data-ppane]').forEach(function (p) { p.hidden = p.dataset.ppane !== name; });
@@ -3603,7 +3609,7 @@ function skSetSpin(n) {
 function skNextSpin() { var o = [0, 3, 4, 5, 6, 8]; skSetSpin(o[(o.indexOf(SK.radial) + 1) % o.length]); }
 $('skSpin').addEventListener('click', skNextSpin);
 $('skPressure').addEventListener('change', function () { SK.pressure = $('skPressure').checked; skSave(); });
-$('skHard').addEventListener('change', function () { SK.hardCut = $('skHard').checked; skSave(); skStatus.textContent = SK.hardCut ? 'Hard cuts: the eraser leaves a flat edge where it cuts a line (the line becomes a shape).' : 'Soft cuts: round ends, and a cut line stays a line.'; });
+$('skHard').addEventListener('change', function () { SK.hardCut = $('skHard').checked; skSave(); skStatus.textContent = SK.hardCut ? 'Hard cuts: the eraser takes out exactly what it touches, with a clean edge (a cut line becomes a shape).' : 'Soft cuts: round ends, and a cut line stays a line.'; });
 
 // Ctrl+C and Ctrl+X on picked lines keep them for pasting (the system clipboard gets a note, so an older picture there is not pasted by mistake)
 document.addEventListener('copy', function (e) {

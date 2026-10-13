@@ -2,6 +2,9 @@
 
 What changed in the sketchpad, newest first. The history before this repo existed is in the pet-shopper changelog (the sketchpad lines under Build 235 and later).
 
+## Build 6
+- Hard cuts: the cut edge now has the eraser's own shape (a round bite, or a straight line with the ruler) instead of a flat face at an angle.
+
 ## Build 5
 - Eraser: Hard cuts (Draw panel, on): a cut line ends in a flat edge where the eraser cut it, and can be cut again. Pressure and brush lines are cut along their middle line too. Cut lines no longer shift. Ribbon shapes (pressure, brush and hard-cut lines) are saved exactly, not refitted.
 
