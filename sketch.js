@@ -1821,7 +1821,7 @@ function skSelButtons() {
   var none = !SK.pick.length, shapes = SK.pick.filter(function (s) { return s.closed || s.fill || s.bucket || s.d; }).length;
   $('skSelTools').querySelectorAll('button').forEach(function (b) { b.disabled = none; });
   ['skUnion', 'skSubtract', 'skIntersect'].forEach(function (id) { $(id).disabled = shapes < 2; });   // combining needs two closed shapes
-  $('skSliceWith').disabled = shapes < 1;   // a closed shape to cut with
+  $('skSliceWith').disabled = $('skSubWith').disabled = shapes < 1;   // a closed shape to cut with
   $('skRepeat').disabled = SK.pick.length < 2;   // a path and a shape
   if (SK.paint) $('skPaint').disabled = false;   // so it can be switched off again
 }
@@ -2147,31 +2147,41 @@ $('skSubtract').addEventListener('click', function () { skCombine('subtract'); }
 $('skIntersect').addEventListener('click', function () { skCombine('intersect'); });
 
 /**
- * Cut with shape (like Slice or Minus Front in a vector app): the picked closed shapes are the cutters. Everything else on the ticked layers
- * that they cover (lines, shapes, brush lines, fills) loses exactly that part; the cutters are then removed.
+ * Subtract and Slice (like Minus Front and Slice in a vector app): the picked closed shapes are the cutters. Everything else on the ticked
+ * layers that they cover (lines, shapes, brush lines, fills) is cut along their outline, and the cutters go.
+ * Subtract (`slice` false) throws away the part under the cutter; Slice keeps it, as its own separate shape, next to the part outside.
  */
-function skSliceWith() {
+function skCutWith(slice) {
   var cutters = SK.pick.filter(function (s) { return s.closed || s.fill || s.bucket || s.d; });
   var plain = cutters.filter(function (s) { return !s.rib && !s.pr && !s.brush; });   // a pressure or brush line picked along with the shape is something to cut, not the cutter
   if (plain.length) cutters = plain;
-  if (!cutters.length) { skStatus.textContent = 'Pick a closed shape to cut with first (draw a shape over the part you want gone, then pick it).'; return; }
-  var foot = function (g) { cutters.forEach(function (c) { g.fill(c.d ? new Path2D(c.d) : new Path2D(L.sketchPath(c.pts, true, 2)), c.d ? 'evenodd' : 'nonzero'); }); };
-  var keep = [], changed = false, base = SK.strokes[SK.mode];
-  base.forEach(function (t) {
+  if (!cutters.length) { skStatus.textContent = 'Pick a closed shape to cut with first (draw a shape over the part you want cut, then pick it).'; return; }
+  var cutPath = function (c) { return c.d ? new Path2D(c.d) : new Path2D(L.sketchPath(c.pts, true, 2)); };
+  var inside = function (g) { cutters.forEach(function (c) { g.fill(cutPath(c), c.d ? 'evenodd' : 'nonzero'); }); };
+  var outside = function (g) {   // everything except the cutters: a huge box with the cutters as holes
+    var p = new Path2D(), b = 1e5;
+    p.rect(-b, -b, 2 * b, 2 * b);
+    cutters.forEach(function (c) { p.addPath(cutPath(c)); });
+    g.fill(p, 'evenodd');
+  };
+  var keep = [], changed = false;
+  SK.strokes[SK.mode].forEach(function (t) {
     if (cutters.indexOf(t) !== -1) return;   // the cutters go
     if (!skSelectable(t)) { keep.push(t); return; }
-    var pieces = skEraseRaster(t, foot, 0);
-    if (!pieces) { keep.push(t); return; }
+    var gone = skEraseRaster(t, inside, 0);   // what is left outside the cutters
+    if (!gone || (slice && !gone.length)) { keep.push(t); return; }   // not touched (or, for Slice, wholly inside: nothing to split)
     changed = true;
-    pieces.forEach(function (m) { keep.push(m); });
+    gone.forEach(function (m) { keep.push(m); });
+    if (slice) (skEraseRaster(t, outside, 0) || []).forEach(function (m) { keep.push(m); });   // and the part inside
   });
   if (!changed) { skStatus.textContent = 'The shape does not cover anything on the ticked layers.'; return; }
   skPushHistory();
   SK.strokes[SK.mode] = keep; SK.pick = [];
   skRedraw(); skXfRender(); skSelButtons(); skSave();
-  skStatus.textContent = 'Cut out. The shape is gone and what it covered is cut away. Undo brings it back.';
+  skStatus.textContent = (slice ? 'Sliced: the part under the shape is now its own shape.' : 'Subtracted: what the shape covered is cut away.') + ' The cutting shape is gone. Undo brings it back.';
 }
-$('skSliceWith').addEventListener('click', skSliceWith);
+$('skSliceWith').addEventListener('click', function () { skCutWith(true); });
+$('skSubWith').addEventListener('click', function () { skCutWith(false); });
 
 // ---------- the bar that floats by the picked lines, messages and the size ring ----------
 /** Opens one of the settings pop-ups under the bar (or shuts them all when given null; the same one again closes it). */
@@ -3441,7 +3451,7 @@ document.addEventListener('keyup', function (e) { if (e.target.matches && e.targ
 $('skHist').addEventListener('toggle', skHistLog);
 $('skHistList').addEventListener('click', function (e) { var b = e.target.closest('[data-step]'); if (b) skHistGo(+b.dataset.step); });
 // ---------- settings tabs and the About page ----------
-var SK_BUILD = 10, SK_BUILD_DATE = '2026-10-13';   // raise SK_BUILD (and the date) with every change that goes out: the About page shows them
+var SK_BUILD = 11, SK_BUILD_DATE = '2026-10-13';   // raise SK_BUILD (and the date) with every change that goes out: the About page shows them
 function skPrefTab(name) {
   document.querySelectorAll('#skPrefTabs [data-ptab]').forEach(function (b) { b.setAttribute('aria-selected', String(b.dataset.ptab === name)); });
   document.querySelectorAll('#skPrefsDlg [data-ppane]').forEach(function (p) { p.hidden = p.dataset.ppane !== name; });
