@@ -2,6 +2,10 @@
 
 What changed in the sketchpad, newest first. The history before this repo existed is in the pet-shopper changelog (the sketchpad lines under Build 235 and later).
 
+## Build 10
+- Outline now works on plain open lines (a fatter line goes underneath).
+- Cut with shape: a pressure or brush line picked with the shape is cut, not used as the cutter.
+
 ## Build 9
 - New Cut with shape button: pick a shape drawn over a line or shape and it cuts away exactly what it covers, then disappears.
 - Eraser list now has two choices: Normal (traced twice as finely, so lines keep their shape) and Round cut (the old eraser). Clean cut is gone.

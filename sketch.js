@@ -1910,10 +1910,18 @@ var SK_INK = '#5b4239';
  */
 function skOutline() {
   var v = SK_VIEW[SK.mode], list = SK.strokes[SK.mode], shapes = skOrdered().filter(function (s) { return SK.pick.indexOf(s) !== -1 && (s.fill || s.closed || s.bucket || s.d) && s.pts.length > 2; });
-  if (!shapes.length) { skStatus.textContent = 'Pick a closed or filled shape first.'; return; }
+  var open = skOrdered().filter(function (s) { return SK.pick.indexOf(s) !== -1 && shapes.indexOf(s) === -1 && !s.bucket && !s.d && !s.rib && s.pts.length > 1; });   // plain open lines
+  if (!shapes.length && !open.length) { skStatus.textContent = 'Pick a line or a closed or filled shape first.'; return; }
   var w = +(v.w * SK_PEN * +$('skOlW').value).toFixed(2), color = $('skOlColor').value, move = +$('skOlPos').value * v.w * 0.003, made = 0;
   var scale = 900 / Math.max(v.w, v.h), pad = Math.ceil(Math.abs(move) * scale) + 4, W = Math.round(v.w * scale) + 2 * pad, H = Math.round(v.h * scale) + 2 * pad;
   skPushHistory();
+  open.forEach(function (s) {   // a line gets a fatter copy of itself underneath, so a rim shows on both sides
+    var o = { pts: s.pts.map(function (p) { return p.slice(); }), color: color, width: +(s.width + 2 * (w + Math.max(0, move))).toFixed(2), fill: false, closed: !!s.closed, lay: s.lay, style: 'solid' };
+    if (s.clip) o.clip = true;
+    skNew(o);
+    list.splice(list.indexOf(s), 0, o);
+    made++;
+  });
   shapes.forEach(function (s) {
     var o = { pts: s.pts.map(function (p) { return p.slice(); }), color: color, width: w, fill: false, closed: true, lay: s.lay, style: 'solid' };
     if (s.d) o.d = s.d;
@@ -2144,6 +2152,8 @@ $('skIntersect').addEventListener('click', function () { skCombine('intersect');
  */
 function skSliceWith() {
   var cutters = SK.pick.filter(function (s) { return s.closed || s.fill || s.bucket || s.d; });
+  var plain = cutters.filter(function (s) { return !s.rib && !s.pr && !s.brush; });   // a pressure or brush line picked along with the shape is something to cut, not the cutter
+  if (plain.length) cutters = plain;
   if (!cutters.length) { skStatus.textContent = 'Pick a closed shape to cut with first (draw a shape over the part you want gone, then pick it).'; return; }
   var foot = function (g) { cutters.forEach(function (c) { g.fill(c.d ? new Path2D(c.d) : new Path2D(L.sketchPath(c.pts, true, 2)), c.d ? 'evenodd' : 'nonzero'); }); };
   var keep = [], changed = false, base = SK.strokes[SK.mode];
@@ -3431,7 +3441,7 @@ document.addEventListener('keyup', function (e) { if (e.target.matches && e.targ
 $('skHist').addEventListener('toggle', skHistLog);
 $('skHistList').addEventListener('click', function (e) { var b = e.target.closest('[data-step]'); if (b) skHistGo(+b.dataset.step); });
 // ---------- settings tabs and the About page ----------
-var SK_BUILD = 9, SK_BUILD_DATE = '2026-10-13';   // raise SK_BUILD (and the date) with every change that goes out: the About page shows them
+var SK_BUILD = 10, SK_BUILD_DATE = '2026-10-13';   // raise SK_BUILD (and the date) with every change that goes out: the About page shows them
 function skPrefTab(name) {
   document.querySelectorAll('#skPrefTabs [data-ptab]').forEach(function (b) { b.setAttribute('aria-selected', String(b.dataset.ptab === name)); });
   document.querySelectorAll('#skPrefsDlg [data-ppane]').forEach(function (p) { p.hidden = p.dataset.ppane !== name; });
