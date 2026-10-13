@@ -725,15 +725,40 @@ function skLineToRib(piece, c0, c1, er, r) {
  * and the widths, with a flat face (hard) or a round end at each cut.
  * @returns {?Object[]} The pieces, or null if the eraser did not reach it.
  */
-function skEraseRib(s, er, r, hard) {
-  var rb = s.rib, v = SK_VIEW[SK.mode], n0 = rb.pts.length, P = [], W = [], i, k;
-  if (n0 < 2) return er.near(rb.pts[0]) < r + rb.w[0] / 2 ? [] : null;
-  var step = Math.max(r * 0.25, v.w * 0.002);   // the middle line and its widths spread into steps
+/** @returns {{P: number[][], W: number[]}} A ribbon's middle line and widths spread into steps at most `step` apart. */
+function skRibDense(rb, step) {
+  var n0 = rb.pts.length, P = [], W = [], i, k;
   for (i = 0; i < n0 - 1; i++) {
     var a = rb.pts[i], b = rb.pts[i + 1], m = Math.max(1, Math.ceil(Math.hypot(b[0] - a[0], b[1] - a[1]) / step));
     for (k = 0; k < m; k++) { var t = k / m; P.push([a[0] + (b[0] - a[0]) * t, a[1] + (b[1] - a[1]) * t]); W.push(rb.w[i] + (rb.w[i + 1] - rb.w[i]) * t); }
   }
   P.push(rb.pts[n0 - 1].slice()); W.push(rb.w[n0 - 1]);
+  return { P: P, W: W };
+}
+/**
+ * @returns {boolean} Whether the eraser goes right through a line wherever it touches it, so an exact cut along the middle line gives the same
+ * as rubbing out its footprint. A graze along one edge, or a small eraser poking inside, does not: those need the traced cut.
+ * @param {number|number[]} widths  The full width, or one per point.
+ */
+function skCutIsClean(pts, widths, er, r) {
+  var v = SK_VIEW[SK.mode], n = pts.length, len = skArcLen(pts), eps = v.w * 0.0015, i, k;
+  var W = function (j) { return typeof widths === 'number' ? widths : widths[j]; };
+  var gone = pts.map(function (p, j) { return er.near(p) < r + W(j) / 2; });
+  for (i = 0; i < n; i++) {
+    if (!gone[i]) continue;
+    var inner = true;   // the ends of a rubbed-out stretch (about two thirds of a width) are the face, where the sides need not be covered
+    for (k = i - 1; inner && k >= 0 && len[i] - len[k] <= W(i) * 0.65; k--) if (!gone[k]) inner = false;
+    for (k = i + 1; inner && k < n && len[k] - len[i] <= W(i) * 0.65; k++) if (!gone[k]) inner = false;
+    if (!inner) continue;
+    var a = pts[Math.max(0, i - 1)], b = pts[Math.min(n - 1, i + 1)], dx = b[0] - a[0], dy = b[1] - a[1], d = Math.hypot(dx, dy) || 1, h = W(i) / 2;
+    if (er.near([pts[i][0] - dy / d * h, pts[i][1] + dx / d * h]) >= r + eps || er.near([pts[i][0] + dy / d * h, pts[i][1] - dx / d * h]) >= r + eps) return false;
+  }
+  return true;
+}
+function skEraseRib(s, er, r, hard) {
+  var rb = s.rib, v = SK_VIEW[SK.mode];
+  if (rb.pts.length < 2) return er.near(rb.pts[0]) < r + rb.w[0] / 2 ? [] : null;
+  var dn = skRibDense(rb, Math.max(r * 0.25, v.w * 0.002)), P = dn.P, W = dn.W;
   var n = P.length, gone = P.map(function (p, j) { return er.near(p) < r + W[j] / 2; });
   if (gone.indexOf(true) === -1) return null;
   var tt = rb.t || skThin();
@@ -927,8 +952,12 @@ function skEraseNormal(pt) {
   nm.base.forEach(function (s) {
     if (!skEraseTouches(s, spots, r)) { keep.push(s); return; }
     if (skDrawing.whole) { changed = true; return; }
-    var pieces;
-    if (!s.fill && !s.d && !skRibbable(s)) { var cut = skEraseCut(s, er, r + s.width / 2); pieces = cut ? cut.map(function (c) { return c.s; }) : null; }
+    var pieces, line = !s.fill && !s.d;
+    if (line && !skRibbable(s)) { var cut = skEraseCut(s, er, r + s.width / 2); pieces = cut ? cut.map(function (c) { return c.s; }) : null; }   // dashed or soft: stays a line
+    else if (line && skCutIsClean(skDrawnPts(s.pts, !!s.closed && s.pts.length > 2, Math.max(r * 0.25, 0.3)), s.width, er, r)) {   // right through: an exact cut, the sides stay as they are
+      var cut2 = skEraseCut(s, er, r + s.width / 2); pieces = cut2 ? cut2.map(function (c) { return skLineToRib(c.s, c.c0, c.c1, er, r); }) : null;
+    }
+    else if (s.rib && s.rib.pts.length > 1 && skCutIsClean(skRibDense(s.rib, Math.max(r * 0.25, v.w * 0.002)).P, skRibDense(s.rib, Math.max(r * 0.25, v.w * 0.002)).W, er, r)) pieces = skEraseRib(s, er, r, true);
     else pieces = skEraseRaster(s, foot, r);
     if (!pieces) { keep.push(s); return; }
     changed = true;
@@ -3376,7 +3405,7 @@ document.addEventListener('keyup', function (e) { if (e.target.matches && e.targ
 $('skHist').addEventListener('toggle', skHistLog);
 $('skHistList').addEventListener('click', function (e) { var b = e.target.closest('[data-step]'); if (b) skHistGo(+b.dataset.step); });
 // ---------- settings tabs and the About page ----------
-var SK_BUILD = 7, SK_BUILD_DATE = '2026-10-13';   // raise SK_BUILD (and the date) with every change that goes out: the About page shows them
+var SK_BUILD = 8, SK_BUILD_DATE = '2026-10-13';   // raise SK_BUILD (and the date) with every change that goes out: the About page shows them
 function skPrefTab(name) {
   document.querySelectorAll('#skPrefTabs [data-ptab]').forEach(function (b) { b.setAttribute('aria-selected', String(b.dataset.ptab === name)); });
   document.querySelectorAll('#skPrefsDlg [data-ppane]').forEach(function (p) { p.hidden = p.dataset.ppane !== name; });
@@ -3737,7 +3766,7 @@ $('skPressure').addEventListener('change', function () { SK.pressure = $('skPres
 $('skEraser').addEventListener('change', function () {
   SK.eraser = $('skEraser').value; skSave();
   if (SK.tool !== 'erase') skSetTool('erase');
-  skStatus.textContent = { normal: 'Normal eraser: rubs out exactly what it touches, from lines, shapes and fills alike (a cut line becomes a shape).', hard: 'Clean cut: bites along a line, with the eraser\'s shape (a cut line becomes a shape).', line: 'Lines only: cuts lines with round ends, and they stay lines. Shapes go whole.' }[SK.eraser];
+  skStatus.textContent = { normal: 'Normal eraser: rubs out exactly what it touches. A cut right through a line is exact and its sides stay as they were; a graze is traced.', hard: 'Clean cut: bites along a line, with the eraser\'s shape (a cut line becomes a shape).', line: 'Lines only: cuts lines with round ends, and they stay lines. Shapes go whole.' }[SK.eraser];
 });
 
 // Ctrl+C and Ctrl+X on picked lines keep them for pasting (the system clipboard gets a note, so an older picture there is not pasted by mistake)

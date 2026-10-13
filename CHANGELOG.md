@@ -2,6 +2,9 @@
 
 What changed in the sketchpad, newest first. The history before this repo existed is in the pet-shopper changelog (the sketchpad lines under Build 235 and later).
 
+## Build 8
+- Normal eraser: a cut right through a line is now exact, so tidy straight lines keep their straight sides. Only a graze along an edge, or a small eraser inside a shape, is traced.
+
 ## Build 7
 - Eraser list (Draw panel, replaces the Hard cuts tick): Normal rubs out exactly what it touches, from lines, shapes, brush lines and fills, holes and all; Clean cut bites along a line; Lines only is the old line eraser.
 
