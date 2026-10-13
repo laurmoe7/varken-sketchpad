@@ -2,6 +2,9 @@
 
 What changed in the sketchpad, newest first. The history before this repo existed is in the pet-shopper changelog (the sketchpad lines under Build 235 and later).
 
+## Build 12
+- New Clip to shape button: trims everything picked to stay inside the lowest picked shape.
+
 ## Build 11
 - Two cutting buttons: Subtract (cut away what the picked shape covers) and Slice (cut along its edge and keep both parts as separate pieces).
 

@@ -1821,7 +1821,8 @@ function skSelButtons() {
   var none = !SK.pick.length, shapes = SK.pick.filter(function (s) { return s.closed || s.fill || s.bucket || s.d; }).length;
   $('skSelTools').querySelectorAll('button').forEach(function (b) { b.disabled = none; });
   ['skUnion', 'skSubtract', 'skIntersect'].forEach(function (id) { $(id).disabled = shapes < 2; });   // combining needs two closed shapes
-  $('skSliceWith').disabled = $('skSubWith').disabled = shapes < 1;   // a closed shape to cut with
+  $('skSliceWith').disabled = $('skSubWith').disabled = shapes < 1;
+  $('skClipTo').disabled = shapes < 1 || SK.pick.length < 2;   // a shape to clip to, and something to clip   // a closed shape to cut with
   $('skRepeat').disabled = SK.pick.length < 2;   // a path and a shape
   if (SK.paint) $('skPaint').disabled = false;   // so it can be switched off again
 }
@@ -2180,6 +2181,35 @@ function skCutWith(slice) {
   skRedraw(); skXfRender(); skSelButtons(); skSave();
   skStatus.textContent = (slice ? 'Sliced: the part under the shape is now its own shape.' : 'Subtracted: what the shape covered is cut away.') + ' The cutting shape is gone. Undo brings it back.';
 }
+/**
+ * Clip: of the picked lines and shapes, the lowest closed plain shape is the frame; everything else picked is trimmed to stay inside it
+ * (the parts outside go), and the frame stays. Draw stripes bigger than the shape, pick them all, press Clip.
+ */
+function skClip() {
+  var picked = skOrdered().filter(function (s) { return SK.pick.indexOf(s) !== -1; });
+  var frame = picked.filter(function (s) { return (s.closed || s.fill || s.bucket || s.d) && !s.rib && !s.pr && !s.brush; })[0];
+  if (!frame || picked.length < 2) { skStatus.textContent = 'Pick the shape to clip to (the lowest picked shape is the frame) and what to clip with it.'; return; }
+  var outside = function (g) {   // everything except the frame: a huge box with the frame as a hole
+    var p = new Path2D(), b = 1e5;
+    p.rect(-b, -b, 2 * b, 2 * b);
+    p.addPath(frame.d ? new Path2D(frame.d) : new Path2D(L.sketchPath(frame.pts, true, 2)));
+    g.fill(p, 'evenodd');
+  };
+  var keep = [], changed = false, trimmed = 0;
+  SK.strokes[SK.mode].forEach(function (t) {
+    if (t === frame || picked.indexOf(t) === -1) { keep.push(t); return; }
+    var pieces = skEraseRaster(t, outside, 0);
+    if (!pieces) { keep.push(t); return; }   // already inside
+    changed = true; trimmed++;
+    pieces.forEach(function (m) { keep.push(m); });
+  });
+  if (!changed) { skStatus.textContent = 'Everything picked is already inside the frame shape.'; return; }
+  skPushHistory();
+  SK.strokes[SK.mode] = keep; SK.pick = [frame];
+  skRedraw(); skXfRender(); skSelButtons(); skSave();
+  skStatus.textContent = 'Clipped ' + trimmed + (trimmed === 1 ? ' line or shape' : ' lines and shapes') + ' to the lowest shape. Undo brings the parts back.';
+}
+$('skClipTo').addEventListener('click', skClip);
 $('skSliceWith').addEventListener('click', function () { skCutWith(true); });
 $('skSubWith').addEventListener('click', function () { skCutWith(false); });
 
@@ -3451,7 +3481,7 @@ document.addEventListener('keyup', function (e) { if (e.target.matches && e.targ
 $('skHist').addEventListener('toggle', skHistLog);
 $('skHistList').addEventListener('click', function (e) { var b = e.target.closest('[data-step]'); if (b) skHistGo(+b.dataset.step); });
 // ---------- settings tabs and the About page ----------
-var SK_BUILD = 11, SK_BUILD_DATE = '2026-10-13';   // raise SK_BUILD (and the date) with every change that goes out: the About page shows them
+var SK_BUILD = 12, SK_BUILD_DATE = '2026-10-13';   // raise SK_BUILD (and the date) with every change that goes out: the About page shows them
 function skPrefTab(name) {
   document.querySelectorAll('#skPrefTabs [data-ptab]').forEach(function (b) { b.setAttribute('aria-selected', String(b.dataset.ptab === name)); });
   document.querySelectorAll('#skPrefsDlg [data-ppane]').forEach(function (p) { p.hidden = p.dataset.ppane !== name; });
