@@ -590,38 +590,65 @@ function skDensify(pts, step, ring) {
   if (!ring) out.push(pts[n - 1].slice());
   return out;
 }
+/** @returns {number} How far a point is from a straight piece of line between a and b. */
+function skSegDist(p, a, b) {
+  var dx = b[0] - a[0], dy = b[1] - a[1], len2 = dx * dx + dy * dy;
+  var t = len2 ? Math.max(0, Math.min(1, ((p[0] - a[0]) * dx + (p[1] - a[1]) * dy) / len2)) : 0;
+  return Math.hypot(a[0] + t * dx - p[0], a[1] + t * dy - p[1]);
+}
+/** @returns {number[]} The point between a kept point and a rubbed-out one that sits exactly on the eraser's edge, so a cut end is clean. */
+function skEdgePt(keep, gone, near, rad) {
+  var lo = 0, hi = 1, k;   // lo stays on the kept side
+  for (k = 0; k < 12; k++) { var t = (lo + hi) / 2; if (near([keep[0] + (gone[0] - keep[0]) * t, keep[1] + (gone[1] - keep[1]) * t]) < rad) hi = t; else lo = t; }
+  return [keep[0] + (gone[0] - keep[0]) * lo, keep[1] + (gone[1] - keep[1]) * lo];
+}
 /**
  * Cuts the parts of a pen line that are under the eraser out of it.
+ * @param {function(number[]): number} near  How far a point is from the eraser.
+ * @param {number} rad  How close counts as under it (the eraser's radius plus half the line's width).
  * @returns {?Object[]} The pieces left (as new lines, maybe none), or null if the eraser did not reach any of its points.
  */
-function skEraseCut(s, spots, rad) {
+function skEraseCut(s, near, rad) {
   var v = SK_VIEW[SK.mode], ring = !!s.closed && s.pts.length > 2, pts = skDensify(s.pts, Math.max(rad * 0.25, 0.3), ring);
-  var gone = pts.map(function (p) { return spots.some(function (q) { return Math.hypot(p[0] - q[0], p[1] - q[1]) < rad; }); });
+  var gone = pts.map(function (p) { return near(p) < rad; });
   if (gone.indexOf(true) === -1) return null;
   if (ring) {   // a loop is opened where it was cut: start the walk at a cut point
     var k = gone.indexOf(true);
     pts = pts.slice(k).concat(pts.slice(0, k)); gone = gone.slice(k).concat(gone.slice(0, k));
   }
-  var runs = [], cur = [];
-  pts.forEach(function (p, i) {
-    if (gone[i]) { if (cur.length) runs.push(cur); cur = []; } else cur.push(p);
-  });
-  if (cur.length) runs.push(cur);
-  return runs.filter(function (r) { return r.length > 1; }).map(function (r) {
+  var runs = [], cur = null, n = pts.length;
+  gone.forEach(function (g, i) { if (g) { if (cur) runs.push(cur); cur = null; } else if (cur) cur.b = i; else cur = { a: i, b: i }; });
+  if (cur) runs.push(cur);
+  return runs.map(function (r) {   // the cut ends land exactly on the eraser's edge, so the round end of the line just touches it
+    var run = pts.slice(r.a, r.b + 1), after = r.b + 1 < n ? pts[r.b + 1] : (ring ? pts[0] : null);
+    if (r.a > 0) run.unshift(skEdgePt(pts[r.a], pts[r.a - 1], near, rad));
+    if (after) run.push(skEdgePt(pts[r.b], after, near, rad));
+    return run;
+  }).filter(function (run) { return run.length > 1 && skArcLen(run).pop() > v.w * 0.001; }).map(function (run) {
     var m = JSON.parse(JSON.stringify(s));
     delete m.cv; delete m.pair; delete m.d;
     m.closed = false; m.fill = false;
-    m.pts = L.simplifyLine(r.map(function (p) { return [+p[0].toFixed(2), +p[1].toFixed(2)]; }), v.w * 0.0006);
+    m.pts = L.simplifyLine(run.map(function (p) { return [+p[0].toFixed(2), +p[1].toFixed(2)]; }), v.w * 0.0006);
     return m;
   });
 }
-/** The eraser: takes out the part of a line it touches (Shift: the whole line); fills and colour fills go whole. */
+/**
+ * The eraser: takes out the part of a line it touches (Shift: the whole line); fills and colour fills go whole.
+ * With Ctrl held (`skDrawing.straight`) it works like a ruler: the rubbed-out band runs straight from where you pressed to the pointer.
+ * @returns {boolean} Whether anything changed.
+ */
 function skEraseAt(pt, from) {
-  var v = SK_VIEW[SK.mode], r = Math.max(v.w * 0.012, v.w * SK_PEN * SK.pen / 2), list = SK.strokes[SK.mode];
-  var spots = skSpots(pt);
+  var v = SK_VIEW[SK.mode], r = Math.max(v.w * 0.012, v.w * SK_PEN * SK.pen / 2), list = SK.strokes[SK.mode], straight = skDrawing.straight && from;
+  var spots = skSpots(pt), near, k;
   if (from) {   // a quick stroke skips over points: fill in the way between
     var dist = Math.hypot(pt[0] - from[0], pt[1] - from[1]), steps = Math.floor(dist / (r * 0.6)), i;
     for (i = 1; i <= steps; i++) spots = spots.concat(skSpots([from[0] + (pt[0] - from[0]) * i / (steps + 1), from[1] + (pt[1] - from[1]) * i / (steps + 1)]));
+  }
+  if (straight) {   // the exact straight band (and its mirrored and turned copies), not a row of circles
+    var A = skSpots(from), B = skSpots(pt);
+    near = function (p) { var best = Infinity; for (k = 0; k < A.length; k++) best = Math.min(best, skSegDist(p, A[k], B[k])); return best; };
+  } else {
+    near = function (p) { var best = Infinity; for (k = 0; k < spots.length; k++) best = Math.min(best, Math.hypot(p[0] - spots[k][0], p[1] - spots[k][1])); return best; };
   }
   var hitsLine = function (s) { return !s.bucket && skSelectable(s) && spots.some(function (q) { return L.sketchHit(s.pts, q, r + s.width / 2); }); };
   var lines = list.some(hitsLine), keep = [], changed = false;
@@ -629,7 +656,7 @@ function skEraseAt(pt, from) {
     list.forEach(function (s) {
       if (!hitsLine(s)) { keep.push(s); return; }
       if (skDrawing.whole || s.fill || s.d || s.pr) { changed = true; return; }   // a fill cannot be cut: it goes whole
-      var pieces = skEraseCut(s, spots, r + s.width / 2);
+      var pieces = skEraseCut(s, near, r + s.width / 2);
       if (!pieces) { keep.push(s); return; }
       changed = true;
       pieces.forEach(function (m) { keep.push(m); });
@@ -638,11 +665,31 @@ function skEraseAt(pt, from) {
     keep = list.filter(function (s) { return !(s.bucket && skSelectable(s) && spots.some(function (q) { return skInFill(s, q); })); });
     changed = keep.length !== list.length;
   }
-  if (!changed) return;
+  if (!changed) return false;
   if (!skDrawing.erased) { skPushHistory(); skDrawing.erased = true; }
   SK.strokes[SK.mode] = keep;
   SK.pick = SK.pick.filter(function (s) { return keep.indexOf(s) !== -1; });
   skRedraw();
+  return true;
+}
+/** The ruler eraser as the pointer moves: the lines go back to how they were, then the straight band from the press point is rubbed out again. */
+function skEraseStraight(pt) {
+  var st = skDrawing.straight, v = SK_VIEW[SK.mode];
+  SK.strokes[SK.mode] = st.base.slice(); SK.pick = st.pick.slice();
+  if (!skDrawing.guide) {   // a thin dashed line shows the ruler
+    var g = document.createElementNS(SVGNS, 'path');
+    g.setAttribute('fill', 'none'); g.setAttribute('stroke', '#f7a8c4'); g.setAttribute('stroke-width', String(+(v.w * 0.004).toFixed(2))); g.setAttribute('stroke-dasharray', +(v.w * 0.012).toFixed(2) + ' ' + +(v.w * 0.008).toFixed(2)); g.setAttribute('pointer-events', 'none');
+    skDrawing.guide = g;
+  }
+  skDrawing.guide.setAttribute('d', 'M' + st.from[0] + ' ' + st.from[1] + 'L' + pt[0] + ' ' + pt[1]);
+  if (!skEraseAt(pt, st.from)) skRedraw();
+  skDraw.appendChild(skDrawing.guide);   // on top, after the redraw
+}
+/** Lifting the pointer after a ruler erase: the guide goes, and an undo step that changed nothing is dropped. */
+function skEraseStraightEnd() {
+  var st = skDrawing.straight, list = SK.strokes[SK.mode];
+  if (skDrawing.guide) skDrawing.guide.remove();
+  if (skDrawing.erased && list.length === st.base.length && list.every(function (s, i) { return s === st.base[i]; })) { SK.hist[SK.mode].pop(); skHistoryUI(); }
 }
 function skDown(e) {
   if (!e.isPrimary || skDrawing || skPan || e.button > 1) return;
@@ -679,7 +726,10 @@ function skDown(e) {
     skDrawing = { xf: { kind: 'move', start: pt, snap: skPickSnap(), pushed: false, all: true } };
     return;
   }
-  if (SK.tool === 'erase') { skDrawing = { erased: false, whole: e.shiftKey, last: pt }; skEraseAt(pt); return; }
+  if (SK.tool === 'erase') {   // Ctrl: a ruler, the band runs straight from here
+    skDrawing = { erased: false, whole: e.shiftKey, last: pt, straight: e.ctrlKey || e.metaKey ? { from: pt, base: SK.strokes[SK.mode].slice(), pick: SK.pick.slice() } : null };
+    skEraseAt(pt); return;
+  }
   var act = skLays().filter(function (x) { return x.id === SK.active[SK.mode]; })[0];
   if (act && !act.show) { act.show = true; skLinesUI(); skRedraw(); }   // drawing on a hidden layer shows it, so the line is not invisible
   var s = skNew({ pts: [pt], color: SK.color, width: +(v.w * SK_PEN * SK.pen).toFixed(2), fill: SK.tool === 'blob', lay: SK.active[SK.mode], style: SK.style });
@@ -733,7 +783,7 @@ function skMove(e) {
     skRenderImages();
     return;
   }
-  if (SK.tool === 'erase') { skEraseAt(pt, skDrawing.last); skDrawing.last = pt; return; }
+  if (SK.tool === 'erase') { if (skDrawing.straight) skEraseStraight(pt); else { skEraseAt(pt, skDrawing.last); skDrawing.last = pt; } return; }
   var s = skDrawing.stroke;
   if (skDrawing.brush) {   // lazy brush: the line is pulled along on a string, so it only moves once the pen is further away than the string is long
     var b = skDrawing.brush, reach = v.w * 0.0008 * SK.lazyN, away = Math.hypot(pt[0] - b[0], pt[1] - b[1]);
@@ -745,6 +795,7 @@ function skMove(e) {
   if (Math.hypot(pt[0] - last[0], pt[1] - last[1]) < v.w * 0.002) return;   // ignore tiny wobbles
   s.pts.push(pt);
   if (s.pr) s.pr.push(skPressure(e));
+  if (s.brush === 'sumi') s.pr[s.pr.length - 1] *= Math.max(0.3, Math.min(1.3, 1.3 - Math.hypot(pt[0] - last[0], pt[1] - last[1]) / (s.width * 1.5)));   // the brush pen: a fast stroke is thin, a slow one fat
   skLiveUpdate();
 }
 function skUp() {
@@ -760,7 +811,10 @@ function skUp() {
   if (!skDrawing) return;
   if (skDrawing.stroke) {
     var s = skDrawing.stroke;
-    if (s.pr || s.brush) s = skLiveStroke(s);   // a pressure line or a brush line is saved as its filled shape, so it is not tidied
+    if (s.pr || s.brush) {   // a pressure line or a brush line: its middle line is tidied and the pressures follow it, then it is saved as its filled shape
+      if (SK.tidy > 0 && s.pts.length > 2) { var tb = L.tidyStroke(s.pts, SK_VIEW[SK.mode].w, { passes: SK.tidy, snap: $('skSnap').checked }); s.pr = skRemapPr(s.pts, s.pr, tb.pts); s.pts = tb.pts; }
+      s = skLiveStroke(s);
+    }
     else {
       var t = L.tidyStroke(s.pts, SK_VIEW[SK.mode].w, { passes: SK.tidy, snap: $('skSnap').checked });
       s.pts = t.pts;
@@ -772,10 +826,13 @@ function skUp() {
     skSymExtra(s).forEach(function (c) { SK.strokes[SK.mode].push(c); });   // the other sides are the same line folded over and turned, so they always match exactly
     skRedraw();   // redrawn tidy, and in the right layer
   }
+  if (skDrawing.straight) skEraseStraightEnd();
   skDrawing = false;
   skSave();
 }
 function skCancel() {
+  if (skDrawing && skDrawing.guide) skDrawing.guide.remove();
+  if (skDrawing && skDrawing.straight) { SK.strokes[SK.mode] = skDrawing.straight.base.slice(); SK.pick = skDrawing.straight.pick.slice(); if (skDrawing.erased) { SK.hist[SK.mode].pop(); skHistoryUI(); } skRedraw(); }
   if (skDrawing && skDrawing.el) skDrawing.el.remove();
   if (skDrawing && skDrawing.extra) skDrawing.extra.forEach(function (x) { x.remove(); });
   if (skDrawing && (skDrawing.lasso || skDrawing.band)) { (skDrawing.lasso || skDrawing.band).el.remove(); }
@@ -951,6 +1008,17 @@ function skResampleP(pts, pr, step) {
   }
   return out;
 }
+/** @returns {number[]} The pen pressures of a line carried over to a tidied copy of it (by how far along each point is), so Tidy can work on brush lines. */
+function skRemapPr(pts, pr, pts2) {
+  if (!pr || pr.length !== pts.length || pts.length < 2) return pts2.map(function () { return pr && pr.length ? pr[0] : 1; });
+  var l1 = skArcLen(pts), l2 = skArcLen(pts2), t1 = l1[l1.length - 1] || 1, t2 = l2[l2.length - 1] || 1, j = 0;
+  return l2.map(function (l) {
+    var f = l / t2 * t1;
+    while (j < l1.length - 2 && l1[j + 1] < f) j++;
+    var seg = l1[j + 1] - l1[j], t = seg > 0 ? Math.max(0, Math.min(1, (f - l1[j]) / seg)) : 0;
+    return +(pr[j] + (pr[j + 1] - pr[j]) * t).toFixed(3);
+  });
+}
 /** @returns {Object} The line as drawn with its brush: one filled shape (see the notes at the top of this section). */
 function skBrushStroke(s) {
   var v = SK_VIEW[SK.mode], w = s.width, b = s.brush, rng = skRng(skBrushSeed(s)), pr = s.pr || s.pts.map(function () { return 1; });
@@ -958,13 +1026,16 @@ function skBrushStroke(s) {
   var out = { pts: [], color: s.color, width: thin, fill: true, closed: true, lay: s.lay, style: 'solid', brush: b };
   if (s.clip) out.clip = true;
   if (b === 'spray' || b === 'sparkle' || b === 'hearts' || b === 'bubbles') return skStampStroke(s, out, rng, pr);
-  var pts = skSmoothPts(s.pts, b === 'pencil' || b === 'rough' ? 1 : 2), len = skArcLen(pts), ws, o = { cap: 'round', rng: rng };
+  var step = Math.max(w * 0.35, v.w * 0.0015), rs = skResampleP(s.pts, pr, step), end = s.pts[s.pts.length - 1];   // even steps, so a tidied line of few points and a fast line come out the same
+  if (Math.hypot(end[0] - rs[rs.length - 1][0], end[1] - rs[rs.length - 1][1]) > step * 0.3) rs.push([end[0], end[1], pr[pr.length - 1]]);
+  pr = rs.map(function (p) { return p[2]; });
+  var pts = skSmoothPts(rs.map(function (p) { return [p[0], p[1]]; }), b === 'pencil' || b === 'rough' ? 1 : 2), len = skArcLen(pts), ws, o = { cap: 'round', rng: rng };
   var P = function (f) { return pr.map(f); };
   if (b === 'gpen') { ws = skTaper(len, P(function (p) { return w * Math.pow(p, 1.5); }), w * 2.5, w * 3); }
   else if (b === 'map') { ws = skTaper(len, P(function (p) { return w * 0.45 * Math.pow(p, 0.9); }), w * 2, w * 2); }
-  else if (b === 'sumi') {   // slow is fat, a flick is thin
-    var sf = skSmoothArr(len.map(function (l, i) { return i ? Math.max(0.3, Math.min(1.3, 1.3 - (l - len[i - 1]) / (w * 1.5))) : 1; }), 3);
-    ws = skTaper(len, P(function (p, i) { return w * 1.3 * (0.35 + 0.65 * p) * sf[i]; }), w * 4, w * 5);
+  else if (b === 'sumi') {   // slow is fat, a flick is thin: the speed was folded into the pressure as the line was drawn (skMove)
+    pr = skSmoothArr(pr, 3);
+    ws = skTaper(len, P(function (p) { return w * 1.3 * (0.35 + 0.65 * p); }), w * 4, w * 5);
     o.jitter = 0.04;
   }
   else if (b === 'callig') {   // a flat nib at a slant: the width is how much of the nib crosses the way you are going
@@ -2669,6 +2740,7 @@ function skSetTool(t) {
   if (t === 'shape') skStatus.textContent = 'Drag to draw the shape. Shift keeps it even. Pick the shape in the list; Fill colours it in.';
   if (t === 'lasso') skStatus.textContent = 'Draw a loop round what you want. Shift adds. Then resize, turn or move it.';
   if (t === 'bucket') skStatus.textContent = 'Click inside a closed area to fill it with the pen colour.';
+  if (t === 'erase') skStatus.textContent = 'Rub out part of a line. Shift: the whole line. Hold Ctrl and drag for a straight edge, like a ruler.';
   SK.tool = t;
   skPress($('skTools'), 'tool', t);
   skApplyLook();
@@ -3007,7 +3079,7 @@ document.addEventListener('keyup', function (e) { if (e.target.matches && e.targ
 $('skHist').addEventListener('toggle', skHistLog);
 $('skHistList').addEventListener('click', function (e) { var b = e.target.closest('[data-step]'); if (b) skHistGo(+b.dataset.step); });
 // ---------- settings tabs and the About page ----------
-var SK_BUILD = 3, SK_BUILD_DATE = '2026-10-12';   // raise SK_BUILD (and the date) with every change that goes out: the About page shows them
+var SK_BUILD = 4, SK_BUILD_DATE = '2026-10-13';   // raise SK_BUILD (and the date) with every change that goes out: the About page shows them
 function skPrefTab(name) {
   document.querySelectorAll('#skPrefTabs [data-ptab]').forEach(function (b) { b.setAttribute('aria-selected', String(b.dataset.ptab === name)); });
   document.querySelectorAll('#skPrefsDlg [data-ppane]').forEach(function (p) { p.hidden = p.dataset.ppane !== name; });
@@ -3262,7 +3334,7 @@ $('skBrush').addEventListener('change', function () {
   SK.brush = $('skBrush').value; skSave();
   if (SK.tool !== 'pen') skSetTool('pen');
   var b = SK_BRUSHES.filter(function (x) { return x[0] === SK.brush; })[0];
-  skStatus.textContent = b ? b[2] + (SK.brush === 'plain' ? '' : ' Brushes skip the Line list and Tidy, and only change new lines.') : '';
+  skStatus.textContent = b ? b[2] + (SK.brush === 'plain' ? '' : ' Brushes skip the Line list and only change new lines.') : '';
 });
 ['skGrid', 'skRef', 'skGhost'].forEach(function (id) { $(id).addEventListener('input', skApplyLook); });
 $('skSpecies').addEventListener('change', function () { P.species = $('skSpecies').value; P.skin = ''; skSkins(); skSave(); skBuild(); });

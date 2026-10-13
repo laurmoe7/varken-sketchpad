@@ -2,6 +2,10 @@
 
 What changed in the sketchpad, newest first. The history before this repo existed is in the pet-shopper changelog (the sketchpad lines under Build 235 and later).
 
+## Build 4
+- Eraser: hold Ctrl and drag for a straight edge, like a ruler (a dashed guide shows it). Cut ends now land exactly on the eraser's edge.
+- Tidy works on brush lines and pressure lines too.
+
 ## Build 3
 - Brushes (Draw panel, the Brush list): G-pen, Mapping pen, Brush pen, Calligraphy, Marker, Pencil, Rough pen, Bristle brush, Watercolour, Spray, Sparkles, Hearts and Bubbles, after the well-known Clip Studio Paint brushes. A brush line is saved as one filled shape.
 
