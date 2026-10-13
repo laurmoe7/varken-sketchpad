@@ -114,7 +114,7 @@ function skLoad() {
     });
     $('skSnap').checked = d.snap !== false;
     SK.mirror = !!d.mirror;
-    SK.bodyClip = !!d.bodyClip; SK.radial = [0, 3, 4, 5, 6, 8].indexOf(d.radial) !== -1 ? d.radial : 0; SK.pressure = d.pressure !== false; SK.eraser = ['line', 'hard', 'normal'].indexOf(d.eraser) !== -1 ? d.eraser : (d.hardCut === false ? 'line' : 'normal');
+    SK.bodyClip = !!d.bodyClip; SK.radial = [0, 3, 4, 5, 6, 8].indexOf(d.radial) !== -1 ? d.radial : 0; SK.pressure = d.pressure !== false; SK.eraser = d.eraser === 'hard' ? 'normal' : ['line', 'normal'].indexOf(d.eraser) !== -1 ? d.eraser : (d.hardCut === false ? 'line' : 'normal');
     SK.lazy = !!d.lazy; if (d.lazyN >= 1 && d.lazyN <= 100) SK.lazyN = Math.round(d.lazyN);
   } catch (e) { /* nothing saved, or it could not be read */ }
 }
@@ -878,10 +878,10 @@ function skSoftenCorners(poly, rr) {
  * @returns {?Object[]} The shape left (maybe none), or null if nothing was rubbed out.
  */
 function skEraseRaster(s, foot, r) {
-  var v = SK_VIEW[SK.mode], scale = 1500 / Math.max(v.w, v.h), thin = skThin(), line = !s.fill && !s.d, soft = s.style === 'soft';
+  var v = SK_VIEW[SK.mode], scale = 2600 / Math.max(v.w, v.h), thin = skThin(), line = !s.fill && !s.d, soft = s.style === 'soft';
   var outW = line ? thin : s.width, box = skStrokeBox(s), pad = r + outW + 2 / scale;
   var bw = box.x1 - box.x0 + 2 * pad, bh = box.y1 - box.y0 + 2 * pad;
-  if (bw * bh * scale * scale > 4e6) scale = Math.sqrt(4e6 / (bw * bh));   // a huge shape gets a coarser canvas
+  if (bw * bh * scale * scale > 8e6) scale = Math.sqrt(8e6 / (bw * bh));   // a huge shape gets a coarser canvas
   var bx = box.x0 - pad, by = box.y0 - pad, W = Math.ceil(bw * scale), H = Math.ceil(bh * scale);
   if (W < 2 || H < 2) return null;
   var cv = document.createElement('canvas');
@@ -1821,6 +1821,7 @@ function skSelButtons() {
   var none = !SK.pick.length, shapes = SK.pick.filter(function (s) { return s.closed || s.fill || s.bucket || s.d; }).length;
   $('skSelTools').querySelectorAll('button').forEach(function (b) { b.disabled = none; });
   ['skUnion', 'skSubtract', 'skIntersect'].forEach(function (id) { $(id).disabled = shapes < 2; });   // combining needs two closed shapes
+  $('skSliceWith').disabled = shapes < 1;   // a closed shape to cut with
   $('skRepeat').disabled = SK.pick.length < 2;   // a path and a shape
   if (SK.paint) $('skPaint').disabled = false;   // so it can be switched off again
 }
@@ -2136,6 +2137,31 @@ function skCombine(op) {
 $('skUnion').addEventListener('click', function () { skCombine('union'); });
 $('skSubtract').addEventListener('click', function () { skCombine('subtract'); });
 $('skIntersect').addEventListener('click', function () { skCombine('intersect'); });
+
+/**
+ * Cut with shape (like Slice or Minus Front in a vector app): the picked closed shapes are the cutters. Everything else on the ticked layers
+ * that they cover (lines, shapes, brush lines, fills) loses exactly that part; the cutters are then removed.
+ */
+function skSliceWith() {
+  var cutters = SK.pick.filter(function (s) { return s.closed || s.fill || s.bucket || s.d; });
+  if (!cutters.length) { skStatus.textContent = 'Pick a closed shape to cut with first (draw a shape over the part you want gone, then pick it).'; return; }
+  var foot = function (g) { cutters.forEach(function (c) { g.fill(c.d ? new Path2D(c.d) : new Path2D(L.sketchPath(c.pts, true, 2)), c.d ? 'evenodd' : 'nonzero'); }); };
+  var keep = [], changed = false, base = SK.strokes[SK.mode];
+  base.forEach(function (t) {
+    if (cutters.indexOf(t) !== -1) return;   // the cutters go
+    if (!skSelectable(t)) { keep.push(t); return; }
+    var pieces = skEraseRaster(t, foot, 0);
+    if (!pieces) { keep.push(t); return; }
+    changed = true;
+    pieces.forEach(function (m) { keep.push(m); });
+  });
+  if (!changed) { skStatus.textContent = 'The shape does not cover anything on the ticked layers.'; return; }
+  skPushHistory();
+  SK.strokes[SK.mode] = keep; SK.pick = [];
+  skRedraw(); skXfRender(); skSelButtons(); skSave();
+  skStatus.textContent = 'Cut out. The shape is gone and what it covered is cut away. Undo brings it back.';
+}
+$('skSliceWith').addEventListener('click', skSliceWith);
 
 // ---------- the bar that floats by the picked lines, messages and the size ring ----------
 /** Opens one of the settings pop-ups under the bar (or shuts them all when given null; the same one again closes it). */
@@ -3405,7 +3431,7 @@ document.addEventListener('keyup', function (e) { if (e.target.matches && e.targ
 $('skHist').addEventListener('toggle', skHistLog);
 $('skHistList').addEventListener('click', function (e) { var b = e.target.closest('[data-step]'); if (b) skHistGo(+b.dataset.step); });
 // ---------- settings tabs and the About page ----------
-var SK_BUILD = 8, SK_BUILD_DATE = '2026-10-13';   // raise SK_BUILD (and the date) with every change that goes out: the About page shows them
+var SK_BUILD = 9, SK_BUILD_DATE = '2026-10-13';   // raise SK_BUILD (and the date) with every change that goes out: the About page shows them
 function skPrefTab(name) {
   document.querySelectorAll('#skPrefTabs [data-ptab]').forEach(function (b) { b.setAttribute('aria-selected', String(b.dataset.ptab === name)); });
   document.querySelectorAll('#skPrefsDlg [data-ppane]').forEach(function (p) { p.hidden = p.dataset.ppane !== name; });
@@ -3766,7 +3792,7 @@ $('skPressure').addEventListener('change', function () { SK.pressure = $('skPres
 $('skEraser').addEventListener('change', function () {
   SK.eraser = $('skEraser').value; skSave();
   if (SK.tool !== 'erase') skSetTool('erase');
-  skStatus.textContent = { normal: 'Normal eraser: rubs out exactly what it touches. A cut right through a line is exact and its sides stay as they were; a graze is traced.', hard: 'Clean cut: bites along a line, with the eraser\'s shape (a cut line becomes a shape).', line: 'Lines only: cuts lines with round ends, and they stay lines. Shapes go whole.' }[SK.eraser];
+  skStatus.textContent = { normal: 'Normal eraser: rubs out exactly what it touches. A cut right through a line is exact and its sides stay as they were; a graze is traced.', line: 'Round cut (the old eraser): cuts lines with round ends, and they stay lines. Shapes go whole.' }[SK.eraser];
 });
 
 // Ctrl+C and Ctrl+X on picked lines keep them for pasting (the system clipboard gets a note, so an older picture there is not pasted by mistake)
