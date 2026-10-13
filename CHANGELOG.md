@@ -2,6 +2,9 @@
 
 What changed in the sketchpad, newest first. The history before this repo existed is in the pet-shopper changelog (the sketchpad lines under Build 235 and later).
 
+## Build 7
+- Eraser list (Draw panel, replaces the Hard cuts tick): Normal rubs out exactly what it touches, from lines, shapes, brush lines and fills, holes and all; Clean cut bites along a line; Lines only is the old line eraser.
+
 ## Build 6
 - Hard cuts: the cut edge now has the eraser's own shape (a round bite, or a straight line with the ruler) instead of a flat face at an angle.
 

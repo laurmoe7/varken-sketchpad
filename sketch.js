@@ -20,7 +20,7 @@ var SLOTS = [['hat', 'Hat'], ['body', 'Clothes'], ['face', 'Glasses'], ['mouth',
 /** What the pet underneath looks like (kept on this computer). */
 var P = { seated: false, species: 'mochi', skin: '', outfit: { hat: 'none', body: 'none', face: 'none', mouth: 'none', neck: 'none', feet: 'none' }, backdrop: 'meadow', night: false, room: {} };
 var SK = {
-  mode: 'pet', tool: 'pen', color: SK_COLOURS[0], zoom: 1, pen: 9, tab: 'draw', clean: true, style: 'solid', brush: 'plain', shape: 'heart', bodyClip: false, radial: 0, pressure: true, hardCut: true, lazy: false, lazyN: 30, fillMode: 'none', colour2: '#ffc9d6', clip: [], pasteN: 0, tidy: 6, space: false, sel: null, mirror: false, pick: [],
+  mode: 'pet', tool: 'pen', color: SK_COLOURS[0], zoom: 1, pen: 9, tab: 'draw', clean: true, style: 'solid', brush: 'plain', shape: 'heart', bodyClip: false, radial: 0, pressure: true, eraser: 'normal', lazy: false, lazyN: 30, fillMode: 'none', colour2: '#ffc9d6', clip: [], pasteN: 0, tidy: 6, space: false, sel: null, mirror: false, pick: [],
   strokes: { pet: [], scene: [], toy: [], room: [], canvas: [] }, hist: { pet: [], scene: [], toy: [], room: [], canvas: [] }, redo: { pet: [], scene: [], toy: [], room: [], canvas: [] },
   /** Pictures to trace, one layer each, in the same coordinates as the drawing: {id, name, src, cx, cy, bw, bh, scale, opacity, visible, behind} */
   images: { pet: [], scene: [], toy: [], room: [], canvas: [] },
@@ -82,7 +82,7 @@ function dressUp(el, outfit) {
 // ---------- keeping the work on this computer ----------
 function skSave() {
   try {
-    localStorage.setItem('nibble-sketchpad', JSON.stringify({ P: P, strokes: SK.strokes, kind: $('skKind').value, note: $('skNote').value, tidy: SK.tidy, pen: SK.pen, style: SK.style, brush: SK.brush, tab: SK.tab, clean: SK.clean, shape: SK.shape, fillMode: SK.fillMode, colour2: SK.colour2, layers: SK.layers, active: SK.active, snap: $('skSnap').checked, mirror: SK.mirror, bodyClip: SK.bodyClip, radial: SK.radial, pressure: SK.pressure, hardCut: SK.hardCut, lazy: SK.lazy, lazyN: SK.lazyN, canvas: SK_VIEW.canvas }));
+    localStorage.setItem('nibble-sketchpad', JSON.stringify({ P: P, strokes: SK.strokes, kind: $('skKind').value, note: $('skNote').value, tidy: SK.tidy, pen: SK.pen, style: SK.style, brush: SK.brush, tab: SK.tab, clean: SK.clean, shape: SK.shape, fillMode: SK.fillMode, colour2: SK.colour2, layers: SK.layers, active: SK.active, snap: $('skSnap').checked, mirror: SK.mirror, bodyClip: SK.bodyClip, radial: SK.radial, pressure: SK.pressure, eraser: SK.eraser, lazy: SK.lazy, lazyN: SK.lazyN, canvas: SK_VIEW.canvas }));
   } catch (e) { /* storage not available */ }
 }
 function skLoad() {
@@ -114,7 +114,7 @@ function skLoad() {
     });
     $('skSnap').checked = d.snap !== false;
     SK.mirror = !!d.mirror;
-    SK.bodyClip = !!d.bodyClip; SK.radial = [0, 3, 4, 5, 6, 8].indexOf(d.radial) !== -1 ? d.radial : 0; SK.pressure = d.pressure !== false; SK.hardCut = d.hardCut !== false;
+    SK.bodyClip = !!d.bodyClip; SK.radial = [0, 3, 4, 5, 6, 8].indexOf(d.radial) !== -1 ? d.radial : 0; SK.pressure = d.pressure !== false; SK.eraser = ['line', 'hard', 'normal'].indexOf(d.eraser) !== -1 ? d.eraser : (d.hardCut === false ? 'line' : 'normal');
     SK.lazy = !!d.lazy; if (d.lazyN >= 1 && d.lazyN <= 100) SK.lazyN = Math.round(d.lazyN);
   } catch (e) { /* nothing saved, or it could not be read */ }
 }
@@ -776,7 +776,7 @@ function skXfRib(s, op) {
  * @returns {boolean} Whether anything changed.
  */
 function skEraseAt(pt, from) {
-  var v = SK_VIEW[SK.mode], r = Math.max(v.w * 0.012, v.w * SK_PEN * SK.pen / 2), list = SK.strokes[SK.mode], straight = skDrawing.straight && from, hard = SK.hardCut;
+  var v = SK_VIEW[SK.mode], r = Math.max(v.w * 0.012, v.w * SK_PEN * SK.pen / 2), list = SK.strokes[SK.mode], straight = skDrawing.straight && from, hard = SK.eraser === 'hard';
   var spots = skSpots(pt), er, k;
   if (from) {   // a quick stroke skips over points: fill in the way between
     var dist = Math.hypot(pt[0] - from[0], pt[1] - from[1]), steps = Math.floor(dist / (r * 0.6)), i;
@@ -824,22 +824,145 @@ function skEraseAt(pt, from) {
   skRedraw();
   return true;
 }
-/** The ruler eraser as the pointer moves: the lines go back to how they were, then the straight band from the press point is rubbed out again. */
-function skEraseStraight(pt) {
+/** @returns {boolean} Whether the eraser's spots come near a shape or line at all (a quick check before the costly work). */
+function skEraseTouches(s, spots, r) {
+  if (!skSelectable(s)) return false;
+  var reach = r + s.width / 2, box = skStrokeBox(s), k;
+  for (k = 0; k < spots.length; k++) { var q = spots[k]; if (q[0] >= box.x0 - reach && q[0] <= box.x1 + reach && q[1] >= box.y0 - reach && q[1] <= box.y1 + reach) break; }
+  if (k === spots.length) return false;
+  if (spots.some(function (q) { return L.sketchHit(s.pts, q, reach); })) return true;
+  if (s.d) return spots.some(function (q) { return skInFill(s, q); });
+  if (s.fill || s.closed) { var path = new Path2D(L.sketchPath(s.pts, true, 2)); return spots.some(function (q) { return skCtx.isPointInPath(path, q[0], q[1]); }); }
+  return false;
+}
+/** @returns {number[][]} A closed outline with each corner cut back by up to `rr` along both of its edges (never more than half an edge), so pixel jaggies soften but the real corners and straight runs stay. */
+function skSoftenCorners(poly, rr) {
+  var n = poly.length, out = [], i;
+  if (n < 3) return poly.slice();
+  for (i = 0; i < n; i++) {
+    var p = poly[i], a = poly[(i + n - 1) % n], b = poly[(i + 1) % n], la = Math.hypot(a[0] - p[0], a[1] - p[1]), lb = Math.hypot(b[0] - p[0], b[1] - p[1]);
+    var ta = la ? Math.min(0.5, rr / la) : 0, tb = lb ? Math.min(0.5, rr / lb) : 0;
+    out.push([p[0] + (a[0] - p[0]) * ta, p[1] + (a[1] - p[1]) * ta], [p[0] + (b[0] - p[0]) * tb, p[1] + (b[1] - p[1]) * tb]);
+  }
+  return out;
+}
+/**
+ * The normal eraser on one shape or line: it is drawn on a hidden canvas, the eraser's path is rubbed out of it, and what is left is traced back
+ * into a shape (like Combine shapes). So the eraser takes out exactly what it touches, edges, holes and all.
+ * @param {function(CanvasRenderingContext2D, number)} foot  Draws the eraser's path on a context, for a given width.
+ * @returns {?Object[]} The shape left (maybe none), or null if nothing was rubbed out.
+ */
+function skEraseRaster(s, foot, r) {
+  var v = SK_VIEW[SK.mode], scale = 1500 / Math.max(v.w, v.h), thin = skThin(), line = !s.fill && !s.d, soft = s.style === 'soft';
+  var outW = line ? thin : s.width, box = skStrokeBox(s), pad = r + outW + 2 / scale;
+  var bw = box.x1 - box.x0 + 2 * pad, bh = box.y1 - box.y0 + 2 * pad;
+  if (bw * bh * scale * scale > 4e6) scale = Math.sqrt(4e6 / (bw * bh));   // a huge shape gets a coarser canvas
+  var bx = box.x0 - pad, by = box.y0 - pad, W = Math.ceil(bw * scale), H = Math.ceil(bh * scale);
+  if (W < 2 || H < 2) return null;
+  var cv = document.createElement('canvas');
+  cv.width = W; cv.height = H;
+  var g = cv.getContext('2d', { willReadFrequently: true });
+  g.setTransform(scale, 0, 0, scale, -bx * scale, -by * scale);
+  g.fillStyle = '#000'; g.strokeStyle = '#000'; g.lineCap = 'round'; g.lineJoin = 'round';
+  if (line) { g.lineWidth = s.width; g.stroke(new Path2D(L.sketchPath(s.pts, !!s.closed && s.pts.length > 2, 2))); }   // a line is its own stroke
+  else g.fill(s.d ? new Path2D(s.d) : new Path2D(L.sketchPath(s.pts, true, 2)), s.d ? 'evenodd' : 'nonzero');   // a shape keeps its outline width, so only the fill is drawn and the eraser is widened by half the outline
+  var count = function () { var px = g.getImageData(0, 0, W, H).data, m = new Uint8Array(W * H), n = 0, i; for (i = 0; i < m.length; i++) { m[i] = px[i * 4 + 3] > 127 ? 1 : 0; n += m[i]; } return { mask: m, n: n }; };
+  var before = count();
+  if (!before.n) return null;
+  g.globalCompositeOperation = 'destination-out';
+  foot(g, 2 * (r + outW / 2));
+  g.globalCompositeOperation = 'source-over';
+  var after = count();
+  if (after.n === before.n) return null;
+  if (!after.n) return [];
+  var loops = L.traceLoops(after.mask, W, H).map(function (lp) {
+    var real = lp.concat([lp[0]]).map(function (p) { return [bx + p[0] / scale, by + p[1] / scale]; });
+    var simp = L.simplifyLine(real, 0.7 / scale);   // the pixel staircase goes; a fitted curve would bulge on a long thin shape, so the corners are only rounded a little
+    simp.pop();
+    return skSoftenCorners(skSoftenCorners(simp, 1.2 / scale), 0.6 / scale).map(function (p) { return [+p[0].toFixed(2), +p[1].toFixed(2)]; });
+  }).filter(function (lp) { return lp.length > 2; });
+  if (!loops.length) return [];
+  var step = v.w * 0.008;
+  loops = loops.map(function (lp) {   // points spread evenly along each loop, so the clean export's curve fit has enough to hold on to and cannot bulge
+    var out = [], i, k;
+    for (i = 0; i < lp.length; i++) { var a = lp[i], b = lp[(i + 1) % lp.length], m = Math.max(1, Math.ceil(Math.hypot(b[0] - a[0], b[1] - a[1]) / step)); for (k = 0; k < m; k++) out.push([+(a[0] + (b[0] - a[0]) * k / m).toFixed(2), +(a[1] + (b[1] - a[1]) * k / m).toFixed(2)]); }
+    return out;
+  });
+  var area = function (lp) { var x0 = Infinity, y0 = Infinity, x1 = -Infinity, y1 = -Infinity; lp.forEach(function (p) { x0 = Math.min(x0, p[0]); y0 = Math.min(y0, p[1]); x1 = Math.max(x1, p[0]); y1 = Math.max(y1, p[1]); }); return (x1 - x0) * (y1 - y0); };
+  var outer = loops.slice().sort(function (a, b) { return area(b) - area(a); })[0];   // the outside, not a hole
+  var made = { d: loops.map(function (lp) { return 'M' + lp.map(function (p) { return p[0] + ' ' + p[1]; }).join('L') + 'Z'; }).join(''), pts: outer, color: s.color, width: outW, fill: true, closed: true, style: soft ? 'soft' : 'solid', lay: s.lay };
+  if (loops.length === 1) made.cv = skRibCv(outer);   // one loop: the clean export writes it exactly
+  if (s.bucket) made.bucket = true;
+  if (s.clip) made.clip = true;
+  if (s.grad) made.grad = s.grad;
+  if (s.brush) made.brush = s.brush;
+  return [made];
+}
+/**
+ * The normal eraser as the pointer moves (`skDrawing.normal`): the lines go back to how they were when the pointer went down, and the whole
+ * path so far (straight from the press point with Ctrl) is rubbed out of everything it touches, so nothing drifts from being traced again
+ * and again. Dashed and soft lines cannot become shapes, so they are cut as lines.
+ */
+function skEraseNormal(pt) {
+  var nm = skDrawing.normal, v = SK_VIEW[SK.mode], r = Math.max(v.w * 0.012, v.w * SK_PEN * SK.pen / 2), k, i;
+  if (skDrawing.straight) { nm.path = [skDrawing.straight.from, pt]; skEraseGuide(pt); }
+  else if (Math.hypot(pt[0] - nm.path[nm.path.length - 1][0], pt[1] - nm.path[nm.path.length - 1][1]) >= v.w * 0.002) nm.path.push(pt);
+  SK.strokes[SK.mode] = nm.base.slice(); SK.pick = nm.pick.slice();
+  var copies = nm.path.map(skSpots), nCopy = copies[0].length, spots = [];   // the path, and its mirrored and turned copies
+  for (i = 0; i < nm.path.length; i++) {
+    spots = spots.concat(copies[i]);
+    if (i) { var a = nm.path[i - 1], b = nm.path[i], dist = Math.hypot(b[0] - a[0], b[1] - a[1]), steps = Math.floor(dist / (r * 0.6)); for (k = 1; k <= steps; k++) spots = spots.concat(skSpots([a[0] + (b[0] - a[0]) * k / (steps + 1), a[1] + (b[1] - a[1]) * k / (steps + 1)])); }
+  }
+  var er = { near: function (p) { var best = Infinity; for (k = 0; k < spots.length; k++) best = Math.min(best, Math.hypot(p[0] - spots[k][0], p[1] - spots[k][1])); return best; } };
+  var foot = function (g, w) {
+    g.lineWidth = w;
+    for (k = 0; k < nCopy; k++) {
+      g.beginPath();
+      for (i = 0; i < copies.length; i++) { var q = copies[i][k]; if (i) g.lineTo(q[0], q[1]); else g.moveTo(q[0], q[1]); }
+      g.stroke();
+      if (copies.length === 1) { g.beginPath(); g.arc(copies[0][k][0], copies[0][k][1], w / 2, 0, Math.PI * 2); g.fill(); }
+    }
+  };
+  var keep = [], changed = false;
+  nm.base.forEach(function (s) {
+    if (!skEraseTouches(s, spots, r)) { keep.push(s); return; }
+    if (skDrawing.whole) { changed = true; return; }
+    var pieces;
+    if (!s.fill && !s.d && !skRibbable(s)) { var cut = skEraseCut(s, er, r + s.width / 2); pieces = cut ? cut.map(function (c) { return c.s; }) : null; }
+    else pieces = skEraseRaster(s, foot, r);
+    if (!pieces) { keep.push(s); return; }
+    changed = true;
+    pieces.forEach(function (m) { keep.push(m); });
+  });
+  if (changed) {
+    if (!skDrawing.erased) { skPushHistory(); skDrawing.erased = true; }
+    SK.strokes[SK.mode] = keep;
+    SK.pick = SK.pick.filter(function (s) { return keep.indexOf(s) !== -1; });
+  }
+  skRedraw();
+  if (skDrawing.guide) skDraw.appendChild(skDrawing.guide);
+}
+/** Draws (or moves) the dashed line that shows the ruler, from the press point to the pointer. */
+function skEraseGuide(pt) {
   var st = skDrawing.straight, v = SK_VIEW[SK.mode];
-  SK.strokes[SK.mode] = st.base.slice(); SK.pick = st.pick.slice();
-  if (!skDrawing.guide) {   // a thin dashed line shows the ruler
+  if (!skDrawing.guide) {
     var g = document.createElementNS(SVGNS, 'path');
     g.setAttribute('fill', 'none'); g.setAttribute('stroke', '#f7a8c4'); g.setAttribute('stroke-width', String(+(v.w * 0.004).toFixed(2))); g.setAttribute('stroke-dasharray', +(v.w * 0.012).toFixed(2) + ' ' + +(v.w * 0.008).toFixed(2)); g.setAttribute('pointer-events', 'none');
     skDrawing.guide = g;
   }
   skDrawing.guide.setAttribute('d', 'M' + st.from[0] + ' ' + st.from[1] + 'L' + pt[0] + ' ' + pt[1]);
+}
+/** The ruler eraser as the pointer moves: the lines go back to how they were, then the straight band from the press point is rubbed out again. */
+function skEraseStraight(pt) {
+  var st = skDrawing.straight;
+  SK.strokes[SK.mode] = st.base.slice(); SK.pick = st.pick.slice();
+  skEraseGuide(pt);
   if (!skEraseAt(pt, st.from)) skRedraw();
   skDraw.appendChild(skDrawing.guide);   // on top, after the redraw
 }
-/** Lifting the pointer after a ruler erase: the guide goes, and an undo step that changed nothing is dropped. */
-function skEraseStraightEnd() {
-  var st = skDrawing.straight, list = SK.strokes[SK.mode];
+/** Lifting the pointer after a ruler or normal erase: the guide goes, and an undo step that changed nothing is dropped. */
+function skEraseEnd() {
+  var st = skDrawing.straight || skDrawing.normal, list = SK.strokes[SK.mode];
   if (skDrawing.guide) skDrawing.guide.remove();
   if (skDrawing.erased && list.length === st.base.length && list.every(function (s, i) { return s === st.base[i]; })) { SK.hist[SK.mode].pop(); skHistoryUI(); }
 }
@@ -878,9 +1001,11 @@ function skDown(e) {
     skDrawing = { xf: { kind: 'move', start: pt, snap: skPickSnap(), pushed: false, all: true } };
     return;
   }
-  if (SK.tool === 'erase') {   // Ctrl: a ruler, the band runs straight from here
-    skDrawing = { erased: false, whole: e.shiftKey, last: pt, straight: e.ctrlKey || e.metaKey ? { from: pt, base: SK.strokes[SK.mode].slice(), pick: SK.pick.slice() } : null };
-    skEraseAt(pt); return;
+  if (SK.tool === 'erase') {   // Ctrl: a ruler, the band runs straight from here; the normal eraser works from this snapshot too (skEraseNormal)
+    var snap = { from: pt, base: SK.strokes[SK.mode].slice(), pick: SK.pick.slice(), path: [pt] };
+    skDrawing = { erased: false, whole: e.shiftKey, last: pt, straight: e.ctrlKey || e.metaKey ? snap : null, normal: SK.eraser === 'normal' ? snap : null };
+    if (skDrawing.normal) skEraseNormal(pt); else skEraseAt(pt);
+    return;
   }
   var act = skLays().filter(function (x) { return x.id === SK.active[SK.mode]; })[0];
   if (act && !act.show) { act.show = true; skLinesUI(); skRedraw(); }   // drawing on a hidden layer shows it, so the line is not invisible
@@ -936,7 +1061,7 @@ function skMove(e) {
     skRenderImages();
     return;
   }
-  if (SK.tool === 'erase') { if (skDrawing.straight) skEraseStraight(pt); else { skEraseAt(pt, skDrawing.last); skDrawing.last = pt; } return; }
+  if (SK.tool === 'erase') { if (skDrawing.normal) skEraseNormal(pt); else if (skDrawing.straight) skEraseStraight(pt); else { skEraseAt(pt, skDrawing.last); skDrawing.last = pt; } return; }
   var s = skDrawing.stroke;
   if (skDrawing.brush) {   // lazy brush: the line is pulled along on a string, so it only moves once the pen is further away than the string is long
     var b = skDrawing.brush, reach = v.w * 0.0008 * SK.lazyN, away = Math.hypot(pt[0] - b[0], pt[1] - b[1]);
@@ -979,13 +1104,13 @@ function skUp() {
     skSymExtra(s).forEach(function (c) { SK.strokes[SK.mode].push(c); });   // the other sides are the same line folded over and turned, so they always match exactly
     skRedraw();   // redrawn tidy, and in the right layer
   }
-  if (skDrawing.straight) skEraseStraightEnd();
+  if (skDrawing.straight || skDrawing.normal) skEraseEnd();
   skDrawing = false;
   skSave();
 }
 function skCancel() {
   if (skDrawing && skDrawing.guide) skDrawing.guide.remove();
-  if (skDrawing && skDrawing.straight) { SK.strokes[SK.mode] = skDrawing.straight.base.slice(); SK.pick = skDrawing.straight.pick.slice(); if (skDrawing.erased) { SK.hist[SK.mode].pop(); skHistoryUI(); } skRedraw(); }
+  if (skDrawing && (skDrawing.straight || skDrawing.normal)) { var sn = skDrawing.straight || skDrawing.normal; SK.strokes[SK.mode] = sn.base.slice(); SK.pick = sn.pick.slice(); if (skDrawing.erased) { SK.hist[SK.mode].pop(); skHistoryUI(); } skRedraw(); }
   if (skDrawing && skDrawing.el) skDrawing.el.remove();
   if (skDrawing && skDrawing.extra) skDrawing.extra.forEach(function (x) { x.remove(); });
   if (skDrawing && (skDrawing.lasso || skDrawing.band)) { (skDrawing.lasso || skDrawing.band).el.remove(); }
@@ -2911,7 +3036,7 @@ function skSetTool(t) {
   if (t === 'shape') skStatus.textContent = 'Drag to draw the shape. Shift keeps it even. Pick the shape in the list; Fill colours it in.';
   if (t === 'lasso') skStatus.textContent = 'Draw a loop round what you want. Shift adds. Then resize, turn or move it.';
   if (t === 'bucket') skStatus.textContent = 'Click inside a closed area to fill it with the pen colour.';
-  if (t === 'erase') skStatus.textContent = 'Rub out part of a line. Shift: the whole line. Hold Ctrl and drag for a straight edge, like a ruler. Hard cuts (Draw panel) cuts a clean edge.';
+  if (t === 'erase') skStatus.textContent = 'Rub out what you touch. Shift: the whole line or shape. Ctrl-drag: a straight edge, like a ruler. The Eraser list (Draw panel) picks how it cuts.';
   SK.tool = t;
   skPress($('skTools'), 'tool', t);
   skApplyLook();
@@ -2961,7 +3086,7 @@ function skBuildPanels() {
   $('skMirror').setAttribute('aria-pressed', String(SK.mirror));
   $('skClip').setAttribute('aria-pressed', String(SK.bodyClip)); $('skClip').hidden = SK.mode !== 'pet';
   $('skSpin').setAttribute('aria-pressed', String(!!SK.radial)); $('skSpin').dataset.key = SK.radial ? String(SK.radial) : 'R';
-  $('skPressure').checked = SK.pressure; $('skHard').checked = SK.hardCut;
+  $('skPressure').checked = SK.pressure; $('skEraser').value = SK.eraser;
   $('skLazy').setAttribute('aria-pressed', String(SK.lazy)); $('skLazyRow').hidden = !SK.lazy; $('skLazyN').value = SK.lazyN; $('skLazyNum').textContent = SK.lazyN;
 }
 
@@ -3251,7 +3376,7 @@ document.addEventListener('keyup', function (e) { if (e.target.matches && e.targ
 $('skHist').addEventListener('toggle', skHistLog);
 $('skHistList').addEventListener('click', function (e) { var b = e.target.closest('[data-step]'); if (b) skHistGo(+b.dataset.step); });
 // ---------- settings tabs and the About page ----------
-var SK_BUILD = 6, SK_BUILD_DATE = '2026-10-13';   // raise SK_BUILD (and the date) with every change that goes out: the About page shows them
+var SK_BUILD = 7, SK_BUILD_DATE = '2026-10-13';   // raise SK_BUILD (and the date) with every change that goes out: the About page shows them
 function skPrefTab(name) {
   document.querySelectorAll('#skPrefTabs [data-ptab]').forEach(function (b) { b.setAttribute('aria-selected', String(b.dataset.ptab === name)); });
   document.querySelectorAll('#skPrefsDlg [data-ppane]').forEach(function (p) { p.hidden = p.dataset.ppane !== name; });
@@ -3609,7 +3734,11 @@ function skSetSpin(n) {
 function skNextSpin() { var o = [0, 3, 4, 5, 6, 8]; skSetSpin(o[(o.indexOf(SK.radial) + 1) % o.length]); }
 $('skSpin').addEventListener('click', skNextSpin);
 $('skPressure').addEventListener('change', function () { SK.pressure = $('skPressure').checked; skSave(); });
-$('skHard').addEventListener('change', function () { SK.hardCut = $('skHard').checked; skSave(); skStatus.textContent = SK.hardCut ? 'Hard cuts: the eraser takes out exactly what it touches, with a clean edge (a cut line becomes a shape).' : 'Soft cuts: round ends, and a cut line stays a line.'; });
+$('skEraser').addEventListener('change', function () {
+  SK.eraser = $('skEraser').value; skSave();
+  if (SK.tool !== 'erase') skSetTool('erase');
+  skStatus.textContent = { normal: 'Normal eraser: rubs out exactly what it touches, from lines, shapes and fills alike (a cut line becomes a shape).', hard: 'Clean cut: bites along a line, with the eraser\'s shape (a cut line becomes a shape).', line: 'Lines only: cuts lines with round ends, and they stay lines. Shapes go whole.' }[SK.eraser];
+});
 
 // Ctrl+C and Ctrl+X on picked lines keep them for pasting (the system clipboard gets a note, so an older picture there is not pasted by mistake)
 document.addEventListener('copy', function (e) {
